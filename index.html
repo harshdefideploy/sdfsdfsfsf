@@ -439,6 +439,24 @@
       provider.on?.('disconnect', onDisconnect);
     }
 
+    function getInjectedProvider() {
+      if (window.trustwallet?.request) return window.trustwallet;
+
+      const eth = window.ethereum;
+      if (!eth) return null;
+
+      // Multiple injected wallets: prefer Trust, then MetaMask, else first provider
+      if (Array.isArray(eth.providers) && eth.providers.length) {
+        return (
+          eth.providers.find((p) => p.isTrust || p.isTrustWallet) ||
+          eth.providers.find((p) => p.isMetaMask) ||
+          eth.providers[0]
+        );
+      }
+
+      return eth;
+    }
+
     async function finishConnect(provider, accounts) {
       if (!Array.isArray(accounts) || !accounts[0]) {
         throw new Error('No account was selected in the wallet.');
@@ -451,12 +469,21 @@
       updateUi();
     }
 
-    async function connectInjected() {
-      if (!window.ethereum) return false;
-      setStatus('Opening browser wallet…');
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      await finishConnect(window.ethereum, accounts);
-      return true;
+    // Trust Wallet / MetaMask in-app browser: BNB prompt only, never QR
+    async function connectInjected(provider) {
+      setStatus('Requesting BNB Smart Chain connection…');
+
+      // Switch to BSC first so Trust Wallet prompts for BNB, not Ethereum
+      try {
+        await ensureBnbChain(provider);
+      } catch (error) {
+        // Some wallets need accounts before chain switch — continue and switch after
+        console.warn('Pre-connect BSC switch deferred:', error);
+      }
+
+      const accounts = await provider.request({ method: 'eth_requestAccounts' });
+      await ensureBnbChain(provider);
+      await finishConnect(provider, accounts);
     }
 
     function withTimeout(promise, ms, message) {
@@ -469,6 +496,7 @@
       });
     }
 
+    // Only for normal browsers with no injected wallet
     async function connectWalletConnect() {
       setStatus('Loading WalletConnect…');
       const { EthereumProvider } = await import(
@@ -519,22 +547,18 @@
       connecting = true;
       connectButton.disabled = true;
       statusEl.classList.remove('error');
+      closeQr();
 
       try {
-        // Prefer injected wallet when available (MetaMask / Trust browser)
-        if (window.ethereum) {
-          try {
-            const ok = await connectInjected();
-            if (ok) return;
-          } catch (injectedError) {
-            if (injectedError?.code === 4001) {
-              setStatus('Connection was cancelled in the wallet.', true);
-              return;
-            }
-            console.warn('Injected wallet failed, trying WalletConnect…', injectedError);
-          }
+        const injected = getInjectedProvider();
+
+        // Inside Trust Wallet / MetaMask browser: direct BNB connect only (no QR)
+        if (injected) {
+          await connectInjected(injected);
+          return;
         }
 
+        // External browser only
         await connectWalletConnect();
       } catch (error) {
         console.error('Wallet connection failed:', error);
