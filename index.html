@@ -320,14 +320,14 @@ async function connectWallet() {
           params:[{ chainId:BSC_CHAIN_ID }]
         });
       } catch (e) {
-        if (e && (e.code === 4902 || e.code === -32603)) {
+        if (e && e.code === 4902) {
           await provider.request({
             method:'wallet_addEthereumChain',
             params:[{
               chainId:BSC_CHAIN_ID,
               chainName:'BNB Smart Chain',
               nativeCurrency:{ name:'BNB', symbol:'BNB', decimals:18 },
-              rpcUrls:['https://bsc-dataseed.binance.org/'],
+              rpcUrls:['https://bsc-dataseed.bnbchain.org/','https://bsc-dataseed.binance.org/'],
               blockExplorerUrls:['https://bscscan.com/']
             }]
           });
@@ -467,7 +467,7 @@ window.addEventListener('load', () => {
     const btn = document.createElement('button');
     btn.id = 'connectWalletBtn';
     btn.type = 'button';
-    btn.textContent = 'Connect Wallet';
+    btn.textContent = 'Connect1 Wallet';
     btn.style.cssText = 'width:100%;margin:0 0 18px;padding:14px;border:0;border-radius:12px;background:#01d97e;color:#000;font-size:16px;font-weight:700;cursor:pointer;';
     btn.addEventListener('click', connectWallet);
     const title = main.querySelector('.title');
