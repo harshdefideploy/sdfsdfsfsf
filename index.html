@@ -469,34 +469,7 @@
       });
     }
 
-    async function assertProjectIdWorks() {
-      // Relay rejects invalid project IDs with HTTP 401 on the websocket handshake.
-      await new Promise((resolve, reject) => {
-        const ws = new WebSocket(`wss://relay.walletconnect.com?projectId=${PROJECT_ID}`);
-        const timer = setTimeout(() => {
-          try { ws.close(); } catch (_) {}
-          reject(new Error('WalletConnect relay timed out. Check your Project ID and network.'));
-        }, 8000);
-
-        ws.onopen = () => {
-          clearTimeout(timer);
-          ws.close();
-          resolve();
-        };
-
-        ws.onerror = () => {
-          clearTimeout(timer);
-          reject(new Error(
-            'WalletConnect Project ID is invalid or blocked (relay 401). Create a new Project ID at cloud.reown.com and add this site to Allowed Origins.'
-          ));
-        };
-      });
-    }
-
     async function connectWalletConnect() {
-      setStatus('Checking WalletConnect Project ID…');
-      await assertProjectIdWorks();
-
       setStatus('Loading WalletConnect…');
       const { EthereumProvider } = await import(
         'https://esm.sh/@walletconnect/ethereum-provider@2.17.0'
