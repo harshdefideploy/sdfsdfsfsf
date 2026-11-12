@@ -165,7 +165,7 @@
 
     .button:hover { filter: brightness(1.05); }
     .button:active { transform: scale(.99); }
-    .button:disabled { cursor: wait; opacity: .65; }
+    .button:disabled { cursor: not-allowed; opacity: .65; }
 
     .button-primary { background: #f3ba2f; color: #17160f; }
     .button-secondary { border: 1px solid #363b33; background: #222720; color: #f4f6f1; }
@@ -181,6 +181,8 @@
       text-align: center;
       overflow-wrap: anywhere;
     }
+
+    .status.error { color: #ffb4a8; }
 
     .notice {
       display: flex;
@@ -199,6 +201,65 @@
     .notice-icon { flex: 0 0 auto; }
 
     footer { padding-top: 24px; color: #777e72; font-size: 11px; line-height: 1.6; text-align: center; }
+
+    .wc-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, .72);
+    }
+
+    .wc-backdrop.open { display: flex; }
+
+    .wc-sheet {
+      width: min(100%, 360px);
+      padding: 22px;
+      border: 1px solid #363b33;
+      border-radius: 20px;
+      background: #171b15;
+      text-align: center;
+    }
+
+    .wc-sheet h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .wc-sheet p {
+      margin: 0 0 16px;
+      color: #a9afa3;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    #qrBox {
+      display: grid;
+      place-items: center;
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 16px;
+      padding: 12px;
+      border-radius: 16px;
+      background: #fff;
+    }
+
+    #qrBox img { width: 100%; height: 100%; }
+
+    .wc-uri {
+      margin: 0 0 14px;
+      padding: 10px;
+      border-radius: 10px;
+      background: #222720;
+      color: #c4cabb;
+      font-size: 11px;
+      line-height: 1.4;
+      word-break: break-all;
+      text-align: left;
+    }
 
     @media (max-width: 420px) {
       .page { padding-inline: 16px; }
@@ -251,10 +312,21 @@
       </section>
     </main>
 
-    <footer>Wallet connection is handled by WalletConnect. Never approve transactions you do not understand.</footer>
+    <footer>Wallet connection is handled by WalletConnect / injected wallets. Never approve transactions you do not understand.</footer>
+  </div>
+
+  <div class="wc-backdrop" id="wcBackdrop" role="dialog" aria-modal="true" aria-label="WalletConnect QR">
+    <div class="wc-sheet">
+      <h2>Scan with your wallet</h2>
+      <p>Open Trust Wallet, MetaMask, or another WalletConnect wallet and scan this QR.</p>
+      <div id="qrBox"></div>
+      <div class="wc-uri" id="wcUri"></div>
+      <button class="button button-secondary" id="closeQrButton" type="button" style="width:100%">Close</button>
+    </div>
   </div>
 
   <script type="module">
+    // Replace with a valid Project ID from https://cloud.reown.com (Allowed Origins must include this domain)
     const PROJECT_ID = '11e5445365f720d1050dc106ba2e78d6';
     const BNB_CHAIN_ID = 56;
     const BNB_CHAIN_HEX = '0x38';
@@ -262,12 +334,21 @@
 
     const connectButton = document.getElementById('connectButton');
     const approveButton = document.getElementById('approveButton');
-    const status = document.getElementById('walletStatus');
+    const statusEl = document.getElementById('walletStatus');
+    const wcBackdrop = document.getElementById('wcBackdrop');
+    const qrBox = document.getElementById('qrBox');
+    const wcUri = document.getElementById('wcUri');
+    const closeQrButton = document.getElementById('closeQrButton');
 
-    let walletProvider = null;
+    let activeProvider = null;
     let connectedAccount = null;
     let connectedChain = null;
     let connecting = false;
+
+    function setStatus(message, isError = false) {
+      statusEl.textContent = message;
+      statusEl.classList.toggle('error', isError);
+    }
 
     function shortAddress(address) {
       return `${address.slice(0, 6)}…${address.slice(-4)}`;
@@ -287,31 +368,46 @@
 
       if (connectedAccount) {
         connectButton.textContent = `Connected · ${shortAddress(connectedAccount)}`;
-        status.textContent = onBnb
-          ? `Connected on BNB Chain: ${connectedAccount}`
-          : 'Switch to BNB Chain to continue.';
+        setStatus(
+          onBnb
+            ? `Connected on BNB Chain: ${connectedAccount}`
+            : 'Switch to BNB Chain to continue.'
+        );
       } else {
         connectButton.textContent = 'Connect wallet';
-        status.textContent = 'Connect to continue. No transaction will be sent by this demo.';
+        if (!statusEl.classList.contains('error')) {
+          setStatus('Connect to continue. No transaction will be sent by this demo.');
+        }
       }
     }
 
-    async function ensureBnbChain() {
-      connectedChain = normalizeChainId(
-        await walletProvider.request({ method: 'eth_chainId' })
-      );
+    function openQr(uri) {
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(uri)}`;
+      qrBox.innerHTML = `<img alt="WalletConnect QR code" src="${qrUrl}">`;
+      wcUri.textContent = uri;
+      wcBackdrop.classList.add('open');
+    }
 
+    function closeQr() {
+      wcBackdrop.classList.remove('open');
+      qrBox.innerHTML = '';
+      wcUri.textContent = '';
+    }
+
+    async function ensureBnbChain(provider) {
+      connectedChain = normalizeChainId(
+        await provider.request({ method: 'eth_chainId' })
+      );
       if (connectedChain === BNB_CHAIN_ID) return;
 
       try {
-        await walletProvider.request({
+        await provider.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: BNB_CHAIN_HEX }]
         });
       } catch (error) {
-        // 4902 = chain not added in wallet
         if (error?.code === 4902 || String(error?.message || '').includes('4902')) {
-          await walletProvider.request({
+          await provider.request({
             method: 'wallet_addEthereumChain',
             params: [{
               chainId: BNB_CHAIN_HEX,
@@ -327,38 +423,91 @@
       }
 
       connectedChain = normalizeChainId(
-        await walletProvider.request({ method: 'eth_chainId' })
+        await provider.request({ method: 'eth_chainId' })
       );
-
       if (connectedChain !== BNB_CHAIN_ID) {
         throw new Error('Switch your wallet to BNB Chain and try again.');
       }
     }
 
-    function bindProviderEvents() {
-      walletProvider.removeListener?.('accountsChanged', onAccountsChanged);
-      walletProvider.removeListener?.('chainChanged', onChainChanged);
-      walletProvider.removeListener?.('disconnect', onDisconnect);
-      walletProvider.on('accountsChanged', onAccountsChanged);
-      walletProvider.on('chainChanged', onChainChanged);
-      walletProvider.on('disconnect', onDisconnect);
+    function bindProviderEvents(provider) {
+      provider.removeListener?.('accountsChanged', onAccountsChanged);
+      provider.removeListener?.('chainChanged', onChainChanged);
+      provider.removeListener?.('disconnect', onDisconnect);
+      provider.on?.('accountsChanged', onAccountsChanged);
+      provider.on?.('chainChanged', onChainChanged);
+      provider.on?.('disconnect', onDisconnect);
     }
 
-    async function getProvider() {
-      if (walletProvider) return walletProvider;
+    async function finishConnect(provider, accounts) {
+      if (!Array.isArray(accounts) || !accounts[0]) {
+        throw new Error('No account was selected in the wallet.');
+      }
+      activeProvider = provider;
+      connectedAccount = accounts[0];
+      bindProviderEvents(provider);
+      await ensureBnbChain(provider);
+      closeQr();
+      updateUi();
+    }
 
+    async function connectInjected() {
+      if (!window.ethereum) return false;
+      setStatus('Opening browser wallet…');
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      await finishConnect(window.ethereum, accounts);
+      return true;
+    }
+
+    function withTimeout(promise, ms, message) {
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error(message)), ms);
+        promise.then(
+          (value) => { clearTimeout(timer); resolve(value); },
+          (error) => { clearTimeout(timer); reject(error); }
+        );
+      });
+    }
+
+    async function assertProjectIdWorks() {
+      // Relay rejects invalid project IDs with HTTP 401 on the websocket handshake.
+      await new Promise((resolve, reject) => {
+        const ws = new WebSocket(`wss://relay.walletconnect.com?projectId=${PROJECT_ID}`);
+        const timer = setTimeout(() => {
+          try { ws.close(); } catch (_) {}
+          reject(new Error('WalletConnect relay timed out. Check your Project ID and network.'));
+        }, 8000);
+
+        ws.onopen = () => {
+          clearTimeout(timer);
+          ws.close();
+          resolve();
+        };
+
+        ws.onerror = () => {
+          clearTimeout(timer);
+          reject(new Error(
+            'WalletConnect Project ID is invalid or blocked (relay 401). Create a new Project ID at cloud.reown.com and add this site to Allowed Origins.'
+          ));
+        };
+      });
+    }
+
+    async function connectWalletConnect() {
+      setStatus('Checking WalletConnect Project ID…');
+      await assertProjectIdWorks();
+
+      setStatus('Loading WalletConnect…');
       const { EthereumProvider } = await import(
         'https://esm.sh/@walletconnect/ethereum-provider@2.17.0'
       );
 
-      walletProvider = await EthereumProvider.init({
+      const provider = await EthereumProvider.init({
         projectId: PROJECT_ID,
         chains: [BNB_CHAIN_ID],
         optionalChains: [BNB_CHAIN_ID],
-        showQrModal: true,
-        rpcMap: {
-          [BNB_CHAIN_ID]: BSC_RPC
-        },
+        showQrModal: false,
+        rpcMap: { [BNB_CHAIN_ID]: BSC_RPC },
         metadata: {
           name: 'BNB Chain USDT Demo',
           description: 'Wallet connection demonstration; no transactions are sent.',
@@ -367,52 +516,60 @@
         }
       });
 
-      bindProviderEvents();
-      return walletProvider;
+      provider.on('display_uri', (uri) => {
+        openQr(uri);
+        setStatus('Scan the QR code with your mobile wallet.');
+      });
+
+      setStatus('Opening WalletConnect…');
+      await withTimeout(
+        provider.connect(),
+        90000,
+        'WalletConnect timed out. Close and try again, or use a browser wallet extension.'
+      );
+
+      const accounts = provider.accounts?.length
+        ? provider.accounts
+        : await provider.request({ method: 'eth_accounts' });
+
+      await finishConnect(provider, accounts);
     }
 
     async function connectWallet() {
       if (connecting) return;
 
       if (window.location.protocol === 'file:') {
-        status.textContent = 'Open this page from localhost or an HTTPS site to use WalletConnect.';
+        setStatus('Open this page from HTTPS (or localhost) to connect a wallet.', true);
         return;
       }
 
       connecting = true;
       connectButton.disabled = true;
-      status.textContent = 'Opening WalletConnect…';
+      statusEl.classList.remove('error');
 
       try {
-        const provider = await getProvider();
-
-        // Reuse session if already connected
-        if (provider.session) {
-          const accounts = await provider.request({ method: 'eth_accounts' });
-          if (Array.isArray(accounts) && accounts[0]) {
-            connectedAccount = accounts[0];
-            await ensureBnbChain();
-            updateUi();
-            return;
+        // Prefer injected wallet when available (MetaMask / Trust browser)
+        if (window.ethereum) {
+          try {
+            const ok = await connectInjected();
+            if (ok) return;
+          } catch (injectedError) {
+            if (injectedError?.code === 4001) {
+              setStatus('Connection was cancelled in the wallet.', true);
+              return;
+            }
+            console.warn('Injected wallet failed, trying WalletConnect…', injectedError);
           }
         }
 
-        await provider.enable();
-
-        const accounts = await provider.request({ method: 'eth_accounts' });
-        if (!Array.isArray(accounts) || !accounts[0]) {
-          throw new Error('No account was selected in the wallet.');
-        }
-
-        connectedAccount = accounts[0];
-        await ensureBnbChain();
-        updateUi();
+        await connectWalletConnect();
       } catch (error) {
         console.error('Wallet connection failed:', error);
+        closeQr();
         if (error?.code === 4001 || /user rejected|cancelled|canceled/i.test(String(error?.message || ''))) {
-          status.textContent = 'Connection was cancelled in the wallet.';
+          setStatus('Connection was cancelled in the wallet.', true);
         } else {
-          status.textContent = error?.message || 'Could not connect. Check your wallet and try again.';
+          setStatus(error?.message || 'Could not connect. Check your wallet and try again.', true);
         }
       } finally {
         connecting = false;
@@ -433,14 +590,19 @@
     function onDisconnect() {
       connectedAccount = null;
       connectedChain = null;
+      activeProvider = null;
       updateUi();
-      status.textContent = 'Wallet disconnected.';
+      setStatus('Wallet disconnected.');
     }
 
+    closeQrButton.addEventListener('click', closeQr);
+    wcBackdrop.addEventListener('click', (event) => {
+      if (event.target === wcBackdrop) closeQr();
+    });
     connectButton.addEventListener('click', connectWallet);
     approveButton.addEventListener('click', () => {
       if (!connectedAccount) return;
-      status.textContent = 'Demo complete: 1 USDT approval simulated. No transaction was sent.';
+      setStatus('Demo complete: 1 USDT approval simulated. No transaction was sent.');
     });
   </script>
 </body>
