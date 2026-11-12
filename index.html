@@ -497,32 +497,68 @@
       wcUri.textContent = '';
     }
 
-    function ensureBnbChain(provider) {
-      return providerRequest(provider, 'eth_chainId').then(function (chainId) {
-        connectedChain = normalizeChainId(chainId);
-        if (connectedChain === BNB_CHAIN_ID) return true;
+    function bscNetworkParams() {
+      return {
+        chainId: BNB_CHAIN_HEX,
+        chainName: 'BNB Smart Chain',
+        nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+        rpcUrls: [
+          'https://bsc-dataseed.binance.org/',
+          'https://bsc-dataseed1.binance.org/',
+          'https://bsc-dataseed2.binance.org/',
+          'https://rpc.ankr.com/bsc'
+        ],
+        blockExplorerUrls: ['https://bscscan.com/']
+      };
+    }
 
-        return providerRequest(provider, 'wallet_switchEthereumChain', [{ chainId: BNB_CHAIN_HEX }])
-          .catch(function (error) {
-            var code = error && error.code;
-            var msg = String((error && error.message) || error || '');
-            if (code === 4902 || msg.indexOf('4902') !== -1 || /unrecognized chain|not added|chain/i.test(msg)) {
-              return providerRequest(provider, 'wallet_addEthereumChain', [{
-                chainId: BNB_CHAIN_HEX,
-                chainName: 'BNB Smart Chain',
-                nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-                rpcUrls: [BSC_RPC],
-                blockExplorerUrls: ['https://bscscan.com/']
-              }]);
-            }
-            // Soft-fail: still allow connected account even if switch is blocked in Trust DApp
-            return null;
+    function isUnknownChainError(error) {
+      var code = error && error.code;
+      var msg = String((error && error.message) || error || '');
+      if (code === 4902 || code === -32603 || String(code) === '4902') return true;
+      return /unrecognised chain|unrecognized chain|unknown chain|chain id|not added|4902/i.test(msg);
+    }
+
+    function refreshChainId(provider) {
+      return providerRequest(provider, 'eth_chainId').then(function (id) {
+        connectedChain = normalizeChainId(id);
+        return connectedChain === BNB_CHAIN_ID;
+      }).catch(function () {
+        return false;
+      });
+    }
+
+    function ensureBnbChain(provider) {
+      return refreshChainId(provider).then(function (alreadyBnb) {
+        if (alreadyBnb) return true;
+
+        // Trust often needs ADD first when chain is missing (avoids "Unrecognized chain ID")
+        return providerRequest(provider, 'wallet_addEthereumChain', [bscNetworkParams()])
+          .catch(function () {
+            // If add fails (already exists / blocked), try switch
+            return providerRequest(provider, 'wallet_switchEthereumChain', [{ chainId: BNB_CHAIN_HEX }]);
           })
           .then(function () {
-            return providerRequest(provider, 'eth_chainId').then(function (id) {
-              connectedChain = normalizeChainId(id);
-              return connectedChain === BNB_CHAIN_ID;
-            }).catch(function () { return false; });
+            return refreshChainId(provider);
+          })
+          .catch(function (error) {
+            // Last try: switch, then add — still never bubble raw chain errors to UI
+            if (isUnknownChainError(error)) {
+              return providerRequest(provider, 'wallet_addEthereumChain', [bscNetworkParams()])
+                .then(function () {
+                  return providerRequest(provider, 'wallet_switchEthereumChain', [{ chainId: BNB_CHAIN_HEX }]);
+                })
+                .then(function () { return refreshChainId(provider); })
+                .catch(function () { return refreshChainId(provider); });
+            }
+
+            return refreshChainId(provider);
+          })
+          .then(function (ok) {
+            if (!ok) {
+              setStatus('Connected. In Trust, open network list and select BNB Smart Chain.');
+            }
+            return ok;
           });
       });
     }
@@ -708,6 +744,14 @@
         var msg = (error && error.message) || String(error) || 'Could not connect. Try again.';
         if ((error && error.code) === 4001 || /user rejected|cancelled|canceled/i.test(msg)) {
           setStatus('Connection was cancelled in the wallet.', true);
+        } else if (isUnknownChainError(error)) {
+          // Keep wallet connected; ask user to pick BNB manually in Trust
+          if (connectedAccount) {
+            setStatus('Connected. In Trust, open network list and select BNB Smart Chain.');
+            updateUi();
+          } else {
+            setStatus('BNB Smart Chain is missing in Trust. Add/select BNB Smart Chain, then connect again.', true);
+          }
         } else {
           setStatus(msg, true);
         }
