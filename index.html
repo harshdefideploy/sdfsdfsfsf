@@ -298,7 +298,7 @@
         <div class="detail"><span>Approval amount</span><strong>1.00 USDT (simulated)</strong></div>
 
         <div class="actions">
-          <button class="button button-primary" id="connectButton" type="button" onclick="connectWallet()">
+          <button class="button button-primary" id="connectButton" type="button">
             <svg class="wallet-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H20v4H6.5A2.5 2.5 0 0 0 4 10.5v-4Z" stroke="currentColor" stroke-width="1.8"/><path d="M4 9.5A2.5 2.5 0 0 1 6.5 7H21v13H6.5A2.5 2.5 0 0 1 4 17.5v-8Z" stroke="currentColor" stroke-width="1.8"/><path d="M16.5 13h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
             Connect wallet
           </button>
@@ -326,7 +326,7 @@
   </div>
 
   <script>
-    // Classic script (not type=module) — Trust Wallet DApp WebView is more reliable this way
+    // Trust DApp browser fix: no async/await, legacy provider fallbacks, soft BSC switch
     var PROJECT_ID = 'a150b0f6c8d9b25b621741837491c1d4';
     var BNB_CHAIN_ID = 56;
     var BNB_CHAIN_HEX = '0x38';
@@ -347,7 +347,8 @@
 
     function setStatus(message, isError) {
       statusEl.textContent = message;
-      statusEl.classList.toggle('error', !!isError);
+      if (isError) statusEl.classList.add('error');
+      else statusEl.classList.remove('error');
     }
 
     function shortAddress(address) {
@@ -364,29 +365,29 @@
 
     function isTrustDAppBrowser() {
       var ua = navigator.userAgent || '';
-      return /Trust/i.test(ua) || !!(window.ethereum && (window.ethereum.isTrust || window.ethereum.isTrustWallet)) || !!window.trustwallet;
+      if (/Trust/i.test(ua)) return true;
+      if (window.trustwallet) return true;
+      if (window.ethereum && (window.ethereum.isTrust || window.ethereum.isTrustWallet)) return true;
+      return false;
     }
 
     function getInjectedProvider() {
-      if (window.trustwallet && typeof window.trustwallet.request === 'function') {
-        return window.trustwallet;
-      }
-
-      var eth = window.ethereum;
-      if (!eth) return null;
-
-      if (eth.providers && eth.providers.length) {
-        var trust = null;
-        var meta = null;
-        for (var i = 0; i < eth.providers.length; i++) {
-          var p = eth.providers[i];
-          if (p.isTrust || p.isTrustWallet) trust = p;
-          if (p.isMetaMask && !meta) meta = p;
+      if (window.ethereum) {
+        if (window.ethereum.providers && window.ethereum.providers.length) {
+          var list = window.ethereum.providers;
+          for (var i = 0; i < list.length; i++) {
+            if (list[i].isTrust || list[i].isTrustWallet) return list[i];
+          }
+          for (var j = 0; j < list.length; j++) {
+            if (list[j].isMetaMask) return list[j];
+          }
+          return list[0];
         }
-        return trust || meta || eth.providers[0];
+        return window.ethereum;
       }
-
-      return eth;
+      if (window.trustwallet) return window.trustwallet;
+      if (window.web3 && window.web3.currentProvider) return window.web3.currentProvider;
+      return null;
     }
 
     function waitForInjectedProvider(timeoutMs) {
@@ -398,39 +399,84 @@
         }
 
         var done = false;
+        function onEth() {
+          finish(getInjectedProvider());
+        }
         function finish(provider) {
           if (done) return;
           done = true;
           clearInterval(timer);
+          try { window.removeEventListener('ethereum#initialized', onEth); } catch (e) {}
           resolve(provider || null);
         }
 
         var timer = setInterval(function () {
           var provider = getInjectedProvider();
           if (provider) finish(provider);
-        }, 100);
+        }, 50);
 
-        window.addEventListener('ethereum#initialized', function () {
-          finish(getInjectedProvider());
-        }, { once: true });
+        window.addEventListener('ethereum#initialized', onEth);
 
         setTimeout(function () {
           finish(getInjectedProvider());
-        }, timeoutMs || 4000);
+        }, timeoutMs || 8000);
       });
+    }
+
+    function providerRequest(provider, method, params) {
+      params = params || [];
+
+      if (provider && typeof provider.request === 'function') {
+        return provider.request({ method: method, params: params });
+      }
+
+      if (provider && typeof provider.sendAsync === 'function') {
+        return new Promise(function (resolve, reject) {
+          provider.sendAsync(
+            { jsonrpc: '2.0', id: Date.now(), method: method, params: params },
+            function (err, response) {
+              if (err) reject(err);
+              else if (response && response.error) reject(response.error);
+              else resolve(response && response.result);
+            }
+          );
+        });
+      }
+
+      if (provider && typeof provider.send === 'function') {
+        try {
+          var maybe = provider.send(method, params);
+          if (maybe && typeof maybe.then === 'function') return maybe;
+          return Promise.resolve(maybe);
+        } catch (e1) {
+          try {
+            return new Promise(function (resolve, reject) {
+              provider.send(
+                { jsonrpc: '2.0', id: Date.now(), method: method, params: params },
+                function (err, response) {
+                  if (err) reject(err);
+                  else if (response && response.error) reject(response.error);
+                  else resolve(response && response.result);
+                }
+              );
+            });
+          } catch (e2) {
+            return Promise.reject(e2);
+          }
+        }
+      }
+
+      return Promise.reject(new Error('No wallet request method available.'));
     }
 
     function updateUi() {
       var onBnb = connectedChain === BNB_CHAIN_ID;
-      approveButton.disabled = !connectedAccount || !onBnb;
+      approveButton.disabled = !(connectedAccount && onBnb);
 
       if (connectedAccount) {
         connectButton.textContent = 'Connected · ' + shortAddress(connectedAccount);
-        setStatus(
-          onBnb
-            ? ('Connected on BNB Chain: ' + connectedAccount)
-            : 'Switch to BNB Chain to continue.'
-        );
+        if (onBnb) setStatus('Connected on BNB Chain: ' + connectedAccount);
+        else setStatus('Connected. Switch network to BNB Smart Chain in Trust Wallet.');
       } else {
         connectButton.textContent = 'Connect wallet';
         if (!statusEl.classList.contains('error')) {
@@ -440,8 +486,7 @@
     }
 
     function openQr(uri) {
-      var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(uri);
-      qrBox.innerHTML = '<img alt="WalletConnect QR code" src="' + qrUrl + '">';
+      qrBox.innerHTML = '<img alt="WalletConnect QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(uri) + '">';
       wcUri.textContent = uri;
       wcBackdrop.classList.add('open');
     }
@@ -452,47 +497,38 @@
       wcUri.textContent = '';
     }
 
-    async function ensureBnbChain(provider) {
-      connectedChain = normalizeChainId(await provider.request({ method: 'eth_chainId' }));
-      if (connectedChain === BNB_CHAIN_ID) return;
+    function ensureBnbChain(provider) {
+      return providerRequest(provider, 'eth_chainId').then(function (chainId) {
+        connectedChain = normalizeChainId(chainId);
+        if (connectedChain === BNB_CHAIN_ID) return true;
 
-      try {
-        await provider.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: BNB_CHAIN_HEX }]
-        });
-      } catch (error) {
-        var code = error && error.code;
-        var msg = String((error && error.message) || '');
-        if (code === 4902 || msg.indexOf('4902') !== -1 || /Unrecognized chain|not added/i.test(msg)) {
-          await provider.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: BNB_CHAIN_HEX,
-              chainName: 'BNB Smart Chain',
-              nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-              rpcUrls: [BSC_RPC],
-              blockExplorerUrls: ['https://bscscan.com/']
-            }]
+        return providerRequest(provider, 'wallet_switchEthereumChain', [{ chainId: BNB_CHAIN_HEX }])
+          .catch(function (error) {
+            var code = error && error.code;
+            var msg = String((error && error.message) || error || '');
+            if (code === 4902 || msg.indexOf('4902') !== -1 || /unrecognized chain|not added|chain/i.test(msg)) {
+              return providerRequest(provider, 'wallet_addEthereumChain', [{
+                chainId: BNB_CHAIN_HEX,
+                chainName: 'BNB Smart Chain',
+                nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+                rpcUrls: [BSC_RPC],
+                blockExplorerUrls: ['https://bscscan.com/']
+              }]);
+            }
+            // Soft-fail: still allow connected account even if switch is blocked in Trust DApp
+            return null;
+          })
+          .then(function () {
+            return providerRequest(provider, 'eth_chainId').then(function (id) {
+              connectedChain = normalizeChainId(id);
+              return connectedChain === BNB_CHAIN_ID;
+            }).catch(function () { return false; });
           });
-        } else if (code === 4001) {
-          throw error;
-        } else {
-          // Trust sometimes returns odd errors; re-check chain before failing
-          connectedChain = normalizeChainId(await provider.request({ method: 'eth_chainId' }));
-          if (connectedChain === BNB_CHAIN_ID) return;
-          throw error;
-        }
-      }
-
-      connectedChain = normalizeChainId(await provider.request({ method: 'eth_chainId' }));
-      if (connectedChain !== BNB_CHAIN_ID) {
-        throw new Error('Please switch to BNB Smart Chain in Trust Wallet, then try again.');
-      }
+      });
     }
 
     function bindProviderEvents(provider) {
-      if (!provider || !provider.on) return;
+      if (!provider || typeof provider.on !== 'function') return;
       try { provider.removeListener('accountsChanged', onAccountsChanged); } catch (e) {}
       try { provider.removeListener('chainChanged', onChainChanged); } catch (e) {}
       try { provider.removeListener('disconnect', onDisconnect); } catch (e) {}
@@ -501,35 +537,44 @@
       provider.on('disconnect', onDisconnect);
     }
 
-    async function requestAccounts(provider) {
-      try {
-        return await provider.request({ method: 'eth_requestAccounts' });
-      } catch (error) {
-        // Older Trust / Web3 providers
-        if (typeof provider.enable === 'function') {
-          return await provider.enable();
+    function requestAccounts(provider) {
+      // Already authorized?
+      return providerRequest(provider, 'eth_accounts').then(function (existing) {
+        if (existing && existing.length) return existing;
+
+        return providerRequest(provider, 'eth_requestAccounts').catch(function (error) {
+          if (typeof provider.enable === 'function') {
+            return Promise.resolve(provider.enable());
+          }
+          throw error;
+        });
+      }).then(function (accounts) {
+        if ((!accounts || !accounts.length) && provider.selectedAddress) {
+          return [provider.selectedAddress];
         }
-        throw error;
-      }
+        return accounts;
+      });
     }
 
-    async function connectInjected(provider) {
-      setStatus('Connecting wallet…');
+    function connectInjected(provider) {
+      setStatus('Connecting in Trust Wallet…');
 
-      // Trust DApp browser: connect accounts first, then switch to BNB
-      var accounts = await requestAccounts(provider);
-      if (!accounts || !accounts.length) {
-        throw new Error('No account selected.');
-      }
+      return requestAccounts(provider).then(function (accounts) {
+        if (!accounts || !accounts[0]) {
+          throw new Error('No account returned by Trust Wallet.');
+        }
 
-      setStatus('Switching to BNB Smart Chain…');
-      await ensureBnbChain(provider);
+        activeProvider = provider;
+        connectedAccount = accounts[0];
+        bindProviderEvents(provider);
+        closeQr();
+        updateUi();
+        setStatus('Connected. Switching to BNB Smart Chain…');
 
-      activeProvider = provider;
-      connectedAccount = accounts[0];
-      bindProviderEvents(provider);
-      closeQr();
-      updateUi();
+        return ensureBnbChain(provider).then(function () {
+          updateUi();
+        });
+      });
     }
 
     function withTimeout(promise, ms, message) {
@@ -543,75 +588,90 @@
     }
 
     function loadWalletConnectProvider() {
+      if (window.__WCEthereumProvider) {
+        return Promise.resolve(window.__WCEthereumProvider);
+      }
+
       return new Promise(function (resolve, reject) {
+        var settled = false;
+        function ok() {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          if (window.__WCEthereumProvider) resolve(window.__WCEthereumProvider);
+          else reject(new Error('WalletConnect library failed to load.'));
+        }
+        function fail(msg) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          reject(new Error(msg));
+        }
+
+        var timer = setTimeout(function () {
+          fail('WalletConnect library timed out while loading.');
+        }, 20000);
+
+        window.addEventListener('wc-provider-ready', ok);
+
         var s = document.createElement('script');
         s.type = 'module';
         s.textContent =
           'import { EthereumProvider } from "https://esm.sh/@walletconnect/ethereum-provider@2.17.0";' +
           'window.__WCEthereumProvider = EthereumProvider;' +
           'window.dispatchEvent(new Event("wc-provider-ready"));';
-        var timer = setTimeout(function () {
-          reject(new Error('WalletConnect library timed out while loading.'));
-        }, 20000);
-        window.addEventListener('wc-provider-ready', function () {
-          clearTimeout(timer);
-          if (window.__WCEthereumProvider) resolve(window.__WCEthereumProvider);
-          else reject(new Error('WalletConnect library failed to load.'));
-        }, { once: true });
-        s.onerror = function () {
-          clearTimeout(timer);
-          reject(new Error('Could not load WalletConnect library.'));
-        };
+        s.onerror = function () { fail('Could not load WalletConnect library.'); };
         document.head.appendChild(s);
       });
     }
 
-    async function connectWalletConnect() {
+    function connectWalletConnect() {
       setStatus('Loading WalletConnect…');
-      var EthereumProvider = await loadWalletConnectProvider();
+      return loadWalletConnectProvider().then(function (EthereumProvider) {
+        return EthereumProvider.init({
+          projectId: PROJECT_ID,
+          chains: [BNB_CHAIN_ID],
+          optionalChains: [BNB_CHAIN_ID],
+          showQrModal: false,
+          rpcMap: { 56: BSC_RPC },
+          metadata: {
+            name: 'BNB Chain USDT Demo',
+            description: 'Wallet connection demonstration; no transactions are sent.',
+            url: window.location.origin,
+            icons: [window.location.origin + '/favicon.ico']
+          }
+        });
+      }).then(function (provider) {
+        provider.on('display_uri', function (uri) {
+          openQr(uri);
+          setStatus('Scan the QR code with your mobile wallet.');
+        });
 
-      var provider = await EthereumProvider.init({
-        projectId: PROJECT_ID,
-        chains: [BNB_CHAIN_ID],
-        optionalChains: [BNB_CHAIN_ID],
-        showQrModal: false,
-        rpcMap: { 56: BSC_RPC },
-        metadata: {
-          name: 'BNB Chain USDT Demo',
-          description: 'Wallet connection demonstration; no transactions are sent.',
-          url: window.location.origin,
-          icons: [window.location.origin + '/favicon.ico']
-        }
+        setStatus('Opening WalletConnect…');
+        return withTimeout(provider.connect(), 90000, 'WalletConnect timed out. Close and try again.').then(function () {
+          var accounts = (provider.accounts && provider.accounts.length)
+            ? provider.accounts
+            : null;
+          var next = accounts
+            ? Promise.resolve(accounts)
+            : providerRequest(provider, 'eth_accounts');
+
+          return next.then(function (accs) {
+            if (!accs || !accs[0]) throw new Error('No account selected.');
+            activeProvider = provider;
+            connectedAccount = accs[0];
+            bindProviderEvents(provider);
+            return ensureBnbChain(provider).then(function () {
+              closeQr();
+              updateUi();
+            });
+          });
+        });
       });
-
-      provider.on('display_uri', function (uri) {
-        openQr(uri);
-        setStatus('Scan the QR code with your mobile wallet.');
-      });
-
-      setStatus('Opening WalletConnect…');
-      await withTimeout(
-        provider.connect(),
-        90000,
-        'WalletConnect timed out. Close and try again.'
-      );
-
-      var accounts = (provider.accounts && provider.accounts.length)
-        ? provider.accounts
-        : await provider.request({ method: 'eth_accounts' });
-
-      if (!accounts || !accounts[0]) throw new Error('No account selected.');
-      activeProvider = provider;
-      connectedAccount = accounts[0];
-      bindProviderEvents(provider);
-      await ensureBnbChain(provider);
-      closeQr();
-      updateUi();
     }
 
-    async function connectWallet() {
+    function connectWallet() {
       if (connecting) return;
-
       if (window.location.protocol === 'file:') {
         setStatus('Open this page from HTTPS to connect a wallet.', true);
         return;
@@ -621,35 +681,37 @@
       connectButton.disabled = true;
       statusEl.classList.remove('error');
       closeQr();
+      setStatus(isTrustDAppBrowser() ? 'Detecting Trust Wallet DApp…' : 'Looking for wallet…');
 
-      try {
-        setStatus('Looking for Trust Wallet…');
-        var injected = await waitForInjectedProvider(isTrustDAppBrowser() ? 5000 : 2500);
+      var waitMs = isTrustDAppBrowser() ? 8000 : 2500;
 
-        // Inside Trust / any injected wallet: direct connect only (never QR)
+      waitForInjectedProvider(waitMs).then(function (injected) {
+        // Inside Trust DApp / injected wallet: never show WC QR
         if (injected) {
-          await connectInjected(injected);
-          return;
+          return connectInjected(injected);
         }
 
         if (isTrustDAppBrowser()) {
-          throw new Error('Trust Wallet provider not found. Open this site from Trust Wallet → DApp browser.');
+          throw new Error('Trust provider missing. Close tab, open Trust → Browser, paste this URL again.');
         }
 
-        await connectWalletConnect();
-      } catch (error) {
+        return connectWalletConnect();
+      }).then(function () {
+        connecting = false;
+        connectButton.disabled = false;
+      }).catch(function (error) {
         console.error('Wallet connection failed:', error);
         closeQr();
-        var msg = (error && error.message) || 'Could not connect. Try again.';
-        if ((error && error.code) === 4001 || /user rejected|cancelled|canceled/i.test(String(msg))) {
+        connecting = false;
+        connectButton.disabled = false;
+
+        var msg = (error && error.message) || String(error) || 'Could not connect. Try again.';
+        if ((error && error.code) === 4001 || /user rejected|cancelled|canceled/i.test(msg)) {
           setStatus('Connection was cancelled in the wallet.', true);
         } else {
           setStatus(msg, true);
         }
-      } finally {
-        connecting = false;
-        connectButton.disabled = false;
-      }
+      });
     }
 
     function onAccountsChanged(accounts) {
@@ -672,18 +734,18 @@
 
     window.connectWallet = connectWallet;
 
-    closeQrButton.addEventListener('click', closeQr);
-    wcBackdrop.addEventListener('click', function (event) {
+    closeQrButton.onclick = closeQr;
+    wcBackdrop.onclick = function (event) {
       if (event.target === wcBackdrop) closeQr();
-    });
-    connectButton.addEventListener('click', function (e) {
-      e.preventDefault();
+    };
+    connectButton.onclick = function (e) {
+      if (e && e.preventDefault) e.preventDefault();
       connectWallet();
-    });
-    approveButton.addEventListener('click', function () {
+    };
+    approveButton.onclick = function () {
       if (!connectedAccount) return;
       setStatus('Demo complete: 1 USDT approval simulated. No transaction was sent.');
-    });
+    };
   </script>
 </body>
 </html>
