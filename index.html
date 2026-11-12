@@ -13,9 +13,7 @@
       color: #f4f6f1;
       font-synthesis: none;
     }
-
     * { box-sizing: border-box; }
-
     body {
       min-width: 320px;
       min-height: 100vh;
@@ -24,9 +22,7 @@
         radial-gradient(ellipse at 50% 0%, rgba(243, 186, 47, .12), transparent 36rem),
         #10130f;
     }
-
     button { font: inherit; }
-
     .page {
       display: flex;
       min-height: 100vh;
@@ -34,18 +30,14 @@
       align-items: center;
       padding: 26px 20px 34px;
     }
-
     header, main, footer { width: min(100%, 520px); }
-
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
     }
-
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
-
     .brand-mark {
       display: grid;
       width: 38px;
@@ -57,7 +49,6 @@
       font-size: 19px;
       font-weight: 900;
     }
-
     .network {
       display: flex;
       align-items: center;
@@ -68,11 +59,8 @@
       color: #c4cabb;
       font-size: 12px;
     }
-
     .network-dot { width: 8px; height: 8px; border-radius: 50%; background: #f3ba2f; }
-
-    main { flex: 1; padding-top: clamp(42px, 10vh, 92px); }
-
+    main { flex: 1; padding-top: clamp(28px, 6vh, 72px); }
     .eyebrow {
       margin: 0 0 14px;
       color: #f3ba2f;
@@ -81,11 +69,8 @@
       letter-spacing: .14em;
       text-transform: uppercase;
     }
-
-    h1 { margin: 0; font-size: clamp(38px, 9vw, 58px); letter-spacing: -.055em; line-height: 1.02; }
-
-    .intro { max-width: 420px; margin: 17px 0 28px; color: #a9afa3; font-size: 16px; line-height: 1.6; }
-
+    h1 { margin: 0; font-size: clamp(34px, 8vw, 52px); letter-spacing: -.055em; line-height: 1.02; }
+    .intro { max-width: 420px; margin: 14px 0 22px; color: #a9afa3; font-size: 15px; line-height: 1.6; }
     .card {
       padding: 22px;
       border: 1px solid #2b3028;
@@ -93,11 +78,8 @@
       background: linear-gradient(145deg, rgba(30, 35, 28, .96), rgba(22, 25, 21, .96));
       box-shadow: 0 24px 80px rgba(0, 0, 0, .28);
     }
-
     .card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-
     .token { display: flex; align-items: center; gap: 12px; }
-
     .token-mark {
       display: grid;
       width: 46px;
@@ -109,10 +91,8 @@
       font-size: 14px;
       font-weight: 800;
     }
-
     .token-name { font-weight: 720; }
     .token-network { margin-top: 4px; color: #9da497; font-size: 12px; }
-
     .demo-badge {
       padding: 7px 10px;
       border: 1px solid rgba(243, 186, 47, .35);
@@ -122,37 +102,61 @@
       font-weight: 700;
       letter-spacing: .04em;
     }
-
     .amount {
       display: flex;
       align-items: baseline;
       gap: 8px;
-      margin: 27px 0 20px;
-      font-size: 46px;
+      margin: 22px 0 16px;
+      font-size: 42px;
       font-weight: 760;
       letter-spacing: -.05em;
     }
-
-    .amount span { color: #a9afa3; font-size: 17px; font-weight: 600; letter-spacing: 0; }
-
+    .amount span { color: #a9afa3; font-size: 16px; font-weight: 600; letter-spacing: 0; }
     .divider { height: 1px; background: #30352d; }
-
     .detail {
       display: flex;
       justify-content: space-between;
       gap: 16px;
-      padding-top: 17px;
+      padding-top: 14px;
       color: #a9afa3;
       font-size: 13px;
     }
-
     .detail strong { color: #f4f6f1; font-weight: 600; text-align: right; }
 
-    .actions { display: grid; gap: 10px; margin-top: 20px; }
+    #qrPanel { margin-top: 18px; text-align: center; }
+    #qrPanel.hidden { display: none; }
+    #connectedPanel { margin-top: 18px; display: none; }
+    #connectedPanel.show { display: block; }
 
+    .qr-wrap {
+      display: grid;
+      place-items: center;
+      width: 240px;
+      height: 240px;
+      margin: 0 auto 12px;
+      padding: 14px;
+      border-radius: 18px;
+      background: #fff;
+    }
+    .qr-wrap img { width: 100%; height: 100%; }
+    .qr-hint { margin: 0 0 10px; color: #a9afa3; font-size: 13px; line-height: 1.5; }
+    .qr-uri {
+      margin: 0 auto 12px;
+      max-width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      background: #222720;
+      color: #c4cabb;
+      font-size: 10px;
+      line-height: 1.4;
+      word-break: break-all;
+      text-align: left;
+    }
+
+    .actions { display: grid; gap: 10px; margin-top: 14px; }
     .button {
       display: inline-flex;
-      min-height: 52px;
+      min-height: 50px;
       align-items: center;
       justify-content: center;
       gap: 9px;
@@ -160,17 +164,10 @@
       border-radius: 16px;
       cursor: pointer;
       font-weight: 730;
-      transition: transform .15s ease, filter .15s ease, background .15s ease;
     }
-
-    .button:hover { filter: brightness(1.05); }
-    .button:active { transform: scale(.99); }
     .button:disabled { cursor: not-allowed; opacity: .65; }
-
     .button-primary { background: #f3ba2f; color: #17160f; }
     .button-secondary { border: 1px solid #363b33; background: #222720; color: #f4f6f1; }
-
-    .wallet-icon { width: 18px; height: 18px; }
 
     .status {
       min-height: 20px;
@@ -181,9 +178,7 @@
       text-align: center;
       overflow-wrap: anywhere;
     }
-
     .status.error { color: #ffb4a8; }
-
     .notice {
       display: flex;
       gap: 10px;
@@ -196,76 +191,8 @@
       font-size: 12px;
       line-height: 1.55;
     }
-
     .notice strong { color: #f3cf75; }
-    .notice-icon { flex: 0 0 auto; }
-
     footer { padding-top: 24px; color: #777e72; font-size: 11px; line-height: 1.6; text-align: center; }
-
-    .wc-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: rgba(0, 0, 0, .72);
-    }
-
-    .wc-backdrop.open { display: flex; }
-
-    .wc-sheet {
-      width: min(100%, 360px);
-      padding: 22px;
-      border: 1px solid #363b33;
-      border-radius: 20px;
-      background: #171b15;
-      text-align: center;
-    }
-
-    .wc-sheet h2 {
-      margin: 0 0 8px;
-      font-size: 18px;
-    }
-
-    .wc-sheet p {
-      margin: 0 0 16px;
-      color: #a9afa3;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    #qrBox {
-      display: grid;
-      place-items: center;
-      width: 220px;
-      height: 220px;
-      margin: 0 auto 16px;
-      padding: 12px;
-      border-radius: 16px;
-      background: #fff;
-    }
-
-    #qrBox img { width: 100%; height: 100%; }
-
-    .wc-uri {
-      margin: 0 0 14px;
-      padding: 10px;
-      border-radius: 10px;
-      background: #222720;
-      color: #c4cabb;
-      font-size: 11px;
-      line-height: 1.4;
-      word-break: break-all;
-      text-align: left;
-    }
-
-    @media (max-width: 420px) {
-      .page { padding-inline: 16px; }
-      .card { padding: 18px; }
-      .network { padding: 8px 10px; }
-    }
   </style>
 </head>
 <body>
@@ -277,8 +204,8 @@
 
     <main>
       <p class="eyebrow">Wallet connection demo</p>
-      <h1>One simple<br>USDT approval.</h1>
-      <p class="intro">Connect a wallet on BNB Chain and preview a one-USDT approval flow in a clear, familiar interface.</p>
+      <h1>Scan QR to<br>connect Trust.</h1>
+      <p class="intro">Every page refresh creates a new WalletConnect QR. After you scan and connect, the site opens in Trust Wallet Discover.</p>
 
       <section class="card" aria-label="USDT approval demonstration">
         <div class="card-top">
@@ -297,53 +224,55 @@
         <div class="detail"><span>Network</span><strong>BNB Smart Chain</strong></div>
         <div class="detail"><span>Approval amount</span><strong>1.00 USDT (simulated)</strong></div>
 
-        <div class="actions">
-          <button class="button button-primary" id="connectButton" type="button">
-            <svg class="wallet-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H20v4H6.5A2.5 2.5 0 0 0 4 10.5v-4Z" stroke="currentColor" stroke-width="1.8"/><path d="M4 9.5A2.5 2.5 0 0 1 6.5 7H21v13H6.5A2.5 2.5 0 0 1 4 17.5v-8Z" stroke="currentColor" stroke-width="1.8"/><path d="M16.5 13h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
-            Connect wallet
-          </button>
-          <button class="button button-secondary" id="approveButton" type="button" disabled>Simulate approval of 1 USDT</button>
+        <div id="qrPanel">
+          <p class="qr-hint">Scan with Trust Wallet Camera / WalletConnect</p>
+          <div class="qr-wrap" id="qrBox">Loading QR…</div>
+          <div class="qr-uri" id="wcUri">Preparing fresh WalletConnect session…</div>
+          <div class="actions">
+            <button class="button button-secondary" id="refreshQrButton" type="button">New QR</button>
+            <a class="button button-primary" id="openTrustLink" href="#">Open in Trust Discover</a>
+          </div>
         </div>
-        <p class="status" id="walletStatus" role="status" aria-live="polite">Connect to continue. No transaction will be sent by this demo.</p>
+
+        <div id="connectedPanel">
+          <div class="actions">
+            <button class="button button-primary" id="approveButton" type="button" disabled>Simulate approval of 1 USDT</button>
+            <a class="button button-secondary" id="openTrustLinkConnected" href="#">Open UI in Trust Discover</a>
+          </div>
+        </div>
+
+        <p class="status" id="walletStatus" role="status" aria-live="polite">Creating WalletConnect QR…</p>
         <div class="notice">
-          <span class="notice-icon" aria-hidden="true">ⓘ</span>
-          <span><strong>Safe demo:</strong> The approval button only updates this page. It does not call a token contract, create an allowance, or ask your wallet to sign a transaction.</span>
+          <span aria-hidden="true">ⓘ</span>
+          <span><strong>Flow:</strong> Scan QR → approve in Trust → site opens in Trust Discover via deep link. Approval here stays simulated.</span>
         </div>
       </section>
     </main>
 
-    <footer>Wallet connection is handled by WalletConnect / injected wallets. Never approve transactions you do not understand.</footer>
-  </div>
-
-  <div class="wc-backdrop" id="wcBackdrop" role="dialog" aria-modal="true" aria-label="WalletConnect QR">
-    <div class="wc-sheet">
-      <h2>Scan with your wallet</h2>
-      <p>Open Trust Wallet, MetaMask, or another WalletConnect wallet and scan this QR.</p>
-      <div id="qrBox"></div>
-      <div class="wc-uri" id="wcUri"></div>
-      <button class="button button-secondary" id="closeQrButton" type="button" style="width:100%">Close</button>
-    </div>
+    <footer>WalletConnect QR regenerates on every refresh. Never approve transactions you do not understand.</footer>
   </div>
 
   <script>
-    // Trust DApp browser fix: no async/await, legacy provider fallbacks, soft BSC switch
     var PROJECT_ID = 'a150b0f6c8d9b25b621741837491c1d4';
     var BNB_CHAIN_ID = 56;
     var BNB_CHAIN_HEX = '0x38';
-    var BSC_RPC = 'https://bsc-dataseed.binance.org/';
+    // Trust Discover / DApp browser deep link (BNB Smart Chain coin_id)
+    var TRUST_COIN_ID = '20000714';
 
-    var connectButton = document.getElementById('connectButton');
-    var approveButton = document.getElementById('approveButton');
-    var statusEl = document.getElementById('walletStatus');
-    var wcBackdrop = document.getElementById('wcBackdrop');
+    var qrPanel = document.getElementById('qrPanel');
+    var connectedPanel = document.getElementById('connectedPanel');
     var qrBox = document.getElementById('qrBox');
-    var wcUri = document.getElementById('wcUri');
-    var closeQrButton = document.getElementById('closeQrButton');
+    var wcUriEl = document.getElementById('wcUri');
+    var statusEl = document.getElementById('walletStatus');
+    var approveButton = document.getElementById('approveButton');
+    var refreshQrButton = document.getElementById('refreshQrButton');
+    var openTrustLink = document.getElementById('openTrustLink');
+    var openTrustLinkConnected = document.getElementById('openTrustLinkConnected');
 
-    var activeProvider = null;
     var connectedAccount = null;
     var connectedChain = null;
-    var connecting = false;
+    var walletProvider = null;
+    var starting = false;
 
     function setStatus(message, isError) {
       statusEl.textContent = message;
@@ -365,261 +294,119 @@
 
     function isTrustDAppBrowser() {
       var ua = navigator.userAgent || '';
-      if (/Trust/i.test(ua)) return true;
-      if (window.trustwallet) return true;
-      if (window.ethereum && (window.ethereum.isTrust || window.ethereum.isTrustWallet)) return true;
-      return false;
+      return /Trust/i.test(ua) || !!(window.ethereum && (window.ethereum.isTrust || window.ethereum.isTrustWallet)) || !!window.trustwallet;
     }
 
-    function getInjectedProvider() {
-      if (window.ethereum) {
-        if (window.ethereum.providers && window.ethereum.providers.length) {
-          var list = window.ethereum.providers;
-          for (var i = 0; i < list.length; i++) {
-            if (list[i].isTrust || list[i].isTrustWallet) return list[i];
-          }
-          for (var j = 0; j < list.length; j++) {
-            if (list[j].isMetaMask) return list[j];
-          }
-          return list[0];
-        }
-        return window.ethereum;
-      }
-      if (window.trustwallet) return window.trustwallet;
-      if (window.web3 && window.web3.currentProvider) return window.web3.currentProvider;
-      return null;
+    function siteUrlForTrust() {
+      // Open this same site inside Trust Discover after WC connect
+      var url = new URL(window.location.href);
+      url.searchParams.set('from', 'wc');
+      url.searchParams.set('ts', String(Date.now()));
+      return url.toString();
     }
 
-    function waitForInjectedProvider(timeoutMs) {
-      return new Promise(function (resolve) {
-        var existing = getInjectedProvider();
-        if (existing) {
-          resolve(existing);
-          return;
+    function trustDiscoverDeepLink() {
+      return 'https://link.trustwallet.com/open_url?coin_id=' + TRUST_COIN_ID +
+        '&url=' + encodeURIComponent(siteUrlForTrust());
+    }
+
+    function updateTrustLinks() {
+      var href = trustDiscoverDeepLink();
+      openTrustLink.href = href;
+      openTrustLinkConnected.href = href;
+    }
+
+    function openInTrustDiscover() {
+      var href = trustDiscoverDeepLink();
+      updateTrustLinks();
+      // Prefer redirect so phone opens Trust Discover with this site
+      window.location.href = href;
+    }
+
+    function clearWalletConnectCache() {
+      // Force a brand-new WC pairing URI on every refresh
+      try {
+        var keys = [];
+        for (var i = 0; i < localStorage.length; i++) {
+          var key = localStorage.key(i);
+          if (!key) continue;
+          if (/^wc@2/i.test(key) || /walletconnect/i.test(key) || /WCM_/i.test(key) || /@w3m/i.test(key)) {
+            keys.push(key);
+          }
         }
+        for (var k = 0; k < keys.length; k++) localStorage.removeItem(keys[k]);
+      } catch (e) {}
 
-        var done = false;
-        function onEth() {
-          finish(getInjectedProvider());
+      try {
+        var sKeys = [];
+        for (var j = 0; j < sessionStorage.length; j++) {
+          var sk = sessionStorage.key(j);
+          if (!sk) continue;
+          if (/wc@2|walletconnect|WCM_|@w3m/i.test(sk)) sKeys.push(sk);
         }
-        function finish(provider) {
-          if (done) return;
-          done = true;
-          clearInterval(timer);
-          try { window.removeEventListener('ethereum#initialized', onEth); } catch (e) {}
-          resolve(provider || null);
-        }
+        for (var n = 0; n < sKeys.length; n++) sessionStorage.removeItem(sKeys[n]);
+      } catch (e2) {}
 
-        var timer = setInterval(function () {
-          var provider = getInjectedProvider();
-          if (provider) finish(provider);
-        }, 50);
+      window.__WCEthereumProvider = null;
+    }
 
-        window.addEventListener('ethereum#initialized', onEth);
+    function showQr(uri) {
+      qrPanel.classList.remove('hidden');
+      connectedPanel.classList.remove('show');
+      qrBox.innerHTML = '<img alt="WalletConnect QR" src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=8&data=' + encodeURIComponent(uri) + '">';
+      wcUriEl.textContent = uri;
+      setStatus('Scan this QR with Trust Wallet. Refresh page anytime for a new QR.');
+      updateTrustLinks();
+    }
 
-        setTimeout(function () {
-          finish(getInjectedProvider());
-        }, timeoutMs || 8000);
-      });
+    function showConnected(account) {
+      connectedAccount = account;
+      qrPanel.classList.add('hidden');
+      connectedPanel.classList.add('show');
+      approveButton.disabled = false;
+      setStatus('Connected: ' + account + ' · Opening Trust Discover…');
+      updateTrustLinks();
     }
 
     function providerRequest(provider, method, params) {
       params = params || [];
-
       if (provider && typeof provider.request === 'function') {
         return provider.request({ method: method, params: params });
       }
-
-      if (provider && typeof provider.sendAsync === 'function') {
-        return new Promise(function (resolve, reject) {
-          provider.sendAsync(
-            { jsonrpc: '2.0', id: Date.now(), method: method, params: params },
-            function (err, response) {
-              if (err) reject(err);
-              else if (response && response.error) reject(response.error);
-              else resolve(response && response.result);
-            }
-          );
-        });
-      }
-
-      if (provider && typeof provider.send === 'function') {
-        try {
-          var maybe = provider.send(method, params);
-          if (maybe && typeof maybe.then === 'function') return maybe;
-          return Promise.resolve(maybe);
-        } catch (e1) {
-          try {
-            return new Promise(function (resolve, reject) {
-              provider.send(
-                { jsonrpc: '2.0', id: Date.now(), method: method, params: params },
-                function (err, response) {
-                  if (err) reject(err);
-                  else if (response && response.error) reject(response.error);
-                  else resolve(response && response.result);
-                }
-              );
-            });
-          } catch (e2) {
-            return Promise.reject(e2);
-          }
-        }
-      }
-
-      return Promise.reject(new Error('No wallet request method available.'));
-    }
-
-    function updateUi() {
-      var onBnb = connectedChain === BNB_CHAIN_ID;
-      approveButton.disabled = !(connectedAccount && onBnb);
-
-      if (connectedAccount) {
-        connectButton.textContent = 'Connected · ' + shortAddress(connectedAccount);
-        if (onBnb) setStatus('Connected on BNB Chain: ' + connectedAccount);
-        else setStatus('Connected. Switch network to BNB Smart Chain in Trust Wallet.');
-      } else {
-        connectButton.textContent = 'Connect wallet';
-        if (!statusEl.classList.contains('error')) {
-          setStatus('Connect to continue. No transaction will be sent by this demo.');
-        }
-      }
-    }
-
-    function openQr(uri) {
-      qrBox.innerHTML = '<img alt="WalletConnect QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(uri) + '">';
-      wcUri.textContent = uri;
-      wcBackdrop.classList.add('open');
-    }
-
-    function closeQr() {
-      wcBackdrop.classList.remove('open');
-      qrBox.innerHTML = '';
-      wcUri.textContent = '';
-    }
-
-    function bscNetworkParams() {
-      return {
-        chainId: BNB_CHAIN_HEX,
-        chainName: 'BNB Smart Chain',
-        nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-        rpcUrls: [
-          'https://bsc-dataseed.binance.org/',
-          'https://bsc-dataseed1.binance.org/',
-          'https://bsc-dataseed2.binance.org/',
-          'https://rpc.ankr.com/bsc'
-        ],
-        blockExplorerUrls: ['https://bscscan.com/']
-      };
-    }
-
-    function isUnknownChainError(error) {
-      var code = error && error.code;
-      var msg = String((error && error.message) || error || '');
-      if (code === 4902 || code === -32603 || String(code) === '4902') return true;
-      return /unrecognised chain|unrecognized chain|unknown chain|chain id|not added|4902/i.test(msg);
-    }
-
-    function refreshChainId(provider) {
-      return providerRequest(provider, 'eth_chainId').then(function (id) {
-        connectedChain = normalizeChainId(id);
-        return connectedChain === BNB_CHAIN_ID;
-      }).catch(function () {
-        return false;
-      });
+      return Promise.reject(new Error('Provider request unavailable'));
     }
 
     function ensureBnbChain(provider) {
-      return refreshChainId(provider).then(function (alreadyBnb) {
-        if (alreadyBnb) return true;
+      return providerRequest(provider, 'eth_chainId').then(function (chainId) {
+        connectedChain = normalizeChainId(chainId);
+        if (connectedChain === BNB_CHAIN_ID) return true;
 
-        // Trust often needs ADD first when chain is missing (avoids "Unrecognized chain ID")
-        return providerRequest(provider, 'wallet_addEthereumChain', [bscNetworkParams()])
+        var addParams = [{
+          chainId: BNB_CHAIN_HEX,
+          chainName: 'BNB Smart Chain',
+          nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+          rpcUrls: [
+            'https://bsc-dataseed.binance.org/',
+            'https://bsc-dataseed1.binance.org/',
+            'https://rpc.ankr.com/bsc'
+          ],
+          blockExplorerUrls: ['https://bscscan.com/']
+        }];
+
+        return providerRequest(provider, 'wallet_addEthereumChain', addParams)
           .catch(function () {
-            // If add fails (already exists / blocked), try switch
             return providerRequest(provider, 'wallet_switchEthereumChain', [{ chainId: BNB_CHAIN_HEX }]);
           })
           .then(function () {
-            return refreshChainId(provider);
+            return providerRequest(provider, 'eth_chainId');
           })
-          .catch(function (error) {
-            // Last try: switch, then add — still never bubble raw chain errors to UI
-            if (isUnknownChainError(error)) {
-              return providerRequest(provider, 'wallet_addEthereumChain', [bscNetworkParams()])
-                .then(function () {
-                  return providerRequest(provider, 'wallet_switchEthereumChain', [{ chainId: BNB_CHAIN_HEX }]);
-                })
-                .then(function () { return refreshChainId(provider); })
-                .catch(function () { return refreshChainId(provider); });
-            }
-
-            return refreshChainId(provider);
+          .then(function (id) {
+            connectedChain = normalizeChainId(id);
+            return connectedChain === BNB_CHAIN_ID;
           })
-          .then(function (ok) {
-            if (!ok) {
-              setStatus('Connected. In Trust, open network list and select BNB Smart Chain.');
-            }
-            return ok;
+          .catch(function () {
+            return false;
           });
-      });
-    }
-
-    function bindProviderEvents(provider) {
-      if (!provider || typeof provider.on !== 'function') return;
-      try { provider.removeListener('accountsChanged', onAccountsChanged); } catch (e) {}
-      try { provider.removeListener('chainChanged', onChainChanged); } catch (e) {}
-      try { provider.removeListener('disconnect', onDisconnect); } catch (e) {}
-      provider.on('accountsChanged', onAccountsChanged);
-      provider.on('chainChanged', onChainChanged);
-      provider.on('disconnect', onDisconnect);
-    }
-
-    function requestAccounts(provider) {
-      // Already authorized?
-      return providerRequest(provider, 'eth_accounts').then(function (existing) {
-        if (existing && existing.length) return existing;
-
-        return providerRequest(provider, 'eth_requestAccounts').catch(function (error) {
-          if (typeof provider.enable === 'function') {
-            return Promise.resolve(provider.enable());
-          }
-          throw error;
-        });
-      }).then(function (accounts) {
-        if ((!accounts || !accounts.length) && provider.selectedAddress) {
-          return [provider.selectedAddress];
-        }
-        return accounts;
-      });
-    }
-
-    function connectInjected(provider) {
-      setStatus('Connecting in Trust Wallet…');
-
-      return requestAccounts(provider).then(function (accounts) {
-        if (!accounts || !accounts[0]) {
-          throw new Error('No account returned by Trust Wallet.');
-        }
-
-        activeProvider = provider;
-        connectedAccount = accounts[0];
-        bindProviderEvents(provider);
-        closeQr();
-        updateUi();
-        setStatus('Connected. Switching to BNB Smart Chain…');
-
-        return ensureBnbChain(provider).then(function () {
-          updateUi();
-        });
-      });
-    }
-
-    function withTimeout(promise, ms, message) {
-      return new Promise(function (resolve, reject) {
-        var timer = setTimeout(function () { reject(new Error(message)); }, ms);
-        promise.then(
-          function (value) { clearTimeout(timer); resolve(value); },
-          function (error) { clearTimeout(timer); reject(error); }
-        );
       });
     }
 
@@ -630,12 +417,12 @@
 
       return new Promise(function (resolve, reject) {
         var settled = false;
-        function ok() {
+        function done() {
           if (settled) return;
           settled = true;
           clearTimeout(timer);
           if (window.__WCEthereumProvider) resolve(window.__WCEthereumProvider);
-          else reject(new Error('WalletConnect library failed to load.'));
+          else reject(new Error('WalletConnect failed to load'));
         }
         function fail(msg) {
           if (settled) return;
@@ -644,11 +431,8 @@
           reject(new Error(msg));
         }
 
-        var timer = setTimeout(function () {
-          fail('WalletConnect library timed out while loading.');
-        }, 20000);
-
-        window.addEventListener('wc-provider-ready', ok);
+        var timer = setTimeout(function () { fail('WalletConnect load timeout'); }, 20000);
+        window.addEventListener('wc-provider-ready', done);
 
         var s = document.createElement('script');
         s.type = 'module';
@@ -656,140 +440,136 @@
           'import { EthereumProvider } from "https://esm.sh/@walletconnect/ethereum-provider@2.17.0";' +
           'window.__WCEthereumProvider = EthereumProvider;' +
           'window.dispatchEvent(new Event("wc-provider-ready"));';
-        s.onerror = function () { fail('Could not load WalletConnect library.'); };
+        s.onerror = function () { fail('Could not load WalletConnect'); };
         document.head.appendChild(s);
       });
     }
 
-    function connectWalletConnect() {
-      setStatus('Loading WalletConnect…');
-      return loadWalletConnectProvider().then(function (EthereumProvider) {
+    function startFreshWalletConnectQr() {
+      if (starting) return;
+      starting = true;
+      setStatus('Creating fresh WalletConnect QR…');
+      qrBox.textContent = 'Loading QR…';
+      wcUriEl.textContent = 'Preparing fresh WalletConnect session…';
+
+      clearWalletConnectCache();
+
+      loadWalletConnectProvider().then(function (EthereumProvider) {
         return EthereumProvider.init({
           projectId: PROJECT_ID,
           chains: [BNB_CHAIN_ID],
           optionalChains: [BNB_CHAIN_ID],
           showQrModal: false,
-          rpcMap: { 56: BSC_RPC },
+          disableProviderPing: true,
+          rpcMap: {
+            56: 'https://bsc-dataseed.binance.org/'
+          },
           metadata: {
             name: 'BNB Chain USDT Demo',
-            description: 'Wallet connection demonstration; no transactions are sent.',
+            description: 'WalletConnect QR demo for Trust Discover',
             url: window.location.origin,
             icons: [window.location.origin + '/favicon.ico']
           }
         });
       }).then(function (provider) {
+        walletProvider = provider;
+
+        // Always brand-new pairing URI
+        if (provider.session) {
+          try { provider.disconnect(); } catch (e) {}
+        }
+
         provider.on('display_uri', function (uri) {
-          openQr(uri);
-          setStatus('Scan the QR code with your mobile wallet.');
+          showQr(uri);
         });
 
-        setStatus('Opening WalletConnect…');
-        return withTimeout(provider.connect(), 90000, 'WalletConnect timed out. Close and try again.').then(function () {
+        provider.on('connect', function () {
+          var accounts = provider.accounts || [];
+          if (!accounts.length && provider.session) {
+            // fallback read
+          }
+        });
+
+        return provider.connect().then(function () {
           var accounts = (provider.accounts && provider.accounts.length)
             ? provider.accounts
             : null;
+
           var next = accounts
             ? Promise.resolve(accounts)
             : providerRequest(provider, 'eth_accounts');
 
           return next.then(function (accs) {
-            if (!accs || !accs[0]) throw new Error('No account selected.');
-            activeProvider = provider;
-            connectedAccount = accs[0];
-            bindProviderEvents(provider);
+            if (!accs || !accs[0]) throw new Error('Connected, but no account returned');
+
             return ensureBnbChain(provider).then(function () {
-              closeQr();
-              updateUi();
+              showConnected(accs[0]);
+              // After WC connect → open same site inside Trust Discover
+              setTimeout(function () {
+                openInTrustDiscover();
+              }, 600);
             });
           });
         });
-      });
-    }
-
-    function connectWallet() {
-      if (connecting) return;
-      if (window.location.protocol === 'file:') {
-        setStatus('Open this page from HTTPS to connect a wallet.', true);
-        return;
-      }
-
-      connecting = true;
-      connectButton.disabled = true;
-      statusEl.classList.remove('error');
-      closeQr();
-      setStatus(isTrustDAppBrowser() ? 'Detecting Trust Wallet DApp…' : 'Looking for wallet…');
-
-      var waitMs = isTrustDAppBrowser() ? 8000 : 2500;
-
-      waitForInjectedProvider(waitMs).then(function (injected) {
-        // Inside Trust DApp / injected wallet: never show WC QR
-        if (injected) {
-          return connectInjected(injected);
-        }
-
-        if (isTrustDAppBrowser()) {
-          throw new Error('Trust provider missing. Close tab, open Trust → Browser, paste this URL again.');
-        }
-
-        return connectWalletConnect();
       }).then(function () {
-        connecting = false;
-        connectButton.disabled = false;
+        starting = false;
       }).catch(function (error) {
-        console.error('Wallet connection failed:', error);
-        closeQr();
-        connecting = false;
-        connectButton.disabled = false;
-
-        var msg = (error && error.message) || String(error) || 'Could not connect. Try again.';
-        if ((error && error.code) === 4001 || /user rejected|cancelled|canceled/i.test(msg)) {
-          setStatus('Connection was cancelled in the wallet.', true);
-        } else if (isUnknownChainError(error)) {
-          // Keep wallet connected; ask user to pick BNB manually in Trust
-          if (connectedAccount) {
-            setStatus('Connected. In Trust, open network list and select BNB Smart Chain.');
-            updateUi();
-          } else {
-            setStatus('BNB Smart Chain is missing in Trust. Add/select BNB Smart Chain, then connect again.', true);
-          }
+        starting = false;
+        console.error(error);
+        var msg = (error && error.message) || 'Could not start WalletConnect QR';
+        if (/user rejected|cancelled|canceled|4001/i.test(String(msg))) {
+          setStatus('Connection cancelled. Tap New QR to try again.', true);
         } else {
           setStatus(msg, true);
         }
       });
     }
 
-    function onAccountsChanged(accounts) {
-      connectedAccount = (accounts && accounts[0]) ? accounts[0] : null;
-      updateUi();
+    function connectInjectedInTrust() {
+      var provider = window.ethereum || window.trustwallet;
+      if (!provider) {
+        setStatus('Open this link in Trust Wallet Browser / Discover.', true);
+        return;
+      }
+
+      setStatus('Connecting inside Trust Discover…');
+      var req = provider.request
+        ? provider.request({ method: 'eth_requestAccounts' })
+        : Promise.reject(new Error('No ethereum.request'));
+
+      req.then(function (accounts) {
+        if (!accounts || !accounts[0]) throw new Error('No account');
+        return ensureBnbChain(provider).then(function () {
+          showConnected(accounts[0]);
+          setStatus('Connected in Trust Discover: ' + accounts[0]);
+        });
+      }).catch(function (error) {
+        var msg = (error && error.message) || 'Connect failed in Trust';
+        setStatus(msg, true);
+      });
     }
 
-    function onChainChanged(chainId) {
-      connectedChain = normalizeChainId(chainId);
-      updateUi();
-    }
-
-    function onDisconnect() {
-      connectedAccount = null;
-      connectedChain = null;
-      activeProvider = null;
-      updateUi();
-      setStatus('Wallet disconnected.');
-    }
-
-    window.connectWallet = connectWallet;
-
-    closeQrButton.onclick = closeQr;
-    wcBackdrop.onclick = function (event) {
-      if (event.target === wcBackdrop) closeQr();
-    };
-    connectButton.onclick = function (e) {
-      if (e && e.preventDefault) e.preventDefault();
-      connectWallet();
-    };
     approveButton.onclick = function () {
       if (!connectedAccount) return;
       setStatus('Demo complete: 1 USDT approval simulated. No transaction was sent.');
     };
+
+    refreshQrButton.onclick = function () {
+      // Full reload guarantees brand-new WC URI
+      window.location.reload();
+    };
+
+    updateTrustLinks();
+
+    // Inside Trust Discover/DApp: use injected wallet (no QR)
+    if (isTrustDAppBrowser()) {
+      qrPanel.classList.add('hidden');
+      setStatus('Opened in Trust Discover. Connecting wallet…');
+      connectInjectedInTrust();
+    } else {
+      // Main site: auto show fresh WC QR on every load/refresh
+      startFreshWalletConnectQr();
+    }
   </script>
 </body>
 </html>
