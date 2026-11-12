@@ -298,7 +298,7 @@
         <div class="detail"><span>Approval amount</span><strong>1.00 USDT (simulated)</strong></div>
 
         <div class="actions">
-          <button class="button button-primary" id="connectButton" type="button">
+          <button class="button button-primary" id="connectButton" type="button" onclick="connectWallet()">
             <svg class="wallet-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H20v4H6.5A2.5 2.5 0 0 0 4 10.5v-4Z" stroke="currentColor" stroke-width="1.8"/><path d="M4 9.5A2.5 2.5 0 0 1 6.5 7H21v13H6.5A2.5 2.5 0 0 1 4 17.5v-8Z" stroke="currentColor" stroke-width="1.8"/><path d="M16.5 13h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
             Connect wallet
           </button>
@@ -325,52 +325,110 @@
     </div>
   </div>
 
-  <script type="module">
-    // Replace with a valid Project ID from https://cloud.reown.com (Allowed Origins must include this domain)
-    const PROJECT_ID = 'a150b0f6c8d9b25b621741837491c1d4';
-    const BNB_CHAIN_ID = 56;
-    const BNB_CHAIN_HEX = '0x38';
-    const BSC_RPC = 'https://bsc-dataseed.binance.org/';
+  <script>
+    // Classic script (not type=module) — Trust Wallet DApp WebView is more reliable this way
+    var PROJECT_ID = 'a150b0f6c8d9b25b621741837491c1d4';
+    var BNB_CHAIN_ID = 56;
+    var BNB_CHAIN_HEX = '0x38';
+    var BSC_RPC = 'https://bsc-dataseed.binance.org/';
 
-    const connectButton = document.getElementById('connectButton');
-    const approveButton = document.getElementById('approveButton');
-    const statusEl = document.getElementById('walletStatus');
-    const wcBackdrop = document.getElementById('wcBackdrop');
-    const qrBox = document.getElementById('qrBox');
-    const wcUri = document.getElementById('wcUri');
-    const closeQrButton = document.getElementById('closeQrButton');
+    var connectButton = document.getElementById('connectButton');
+    var approveButton = document.getElementById('approveButton');
+    var statusEl = document.getElementById('walletStatus');
+    var wcBackdrop = document.getElementById('wcBackdrop');
+    var qrBox = document.getElementById('qrBox');
+    var wcUri = document.getElementById('wcUri');
+    var closeQrButton = document.getElementById('closeQrButton');
 
-    let activeProvider = null;
-    let connectedAccount = null;
-    let connectedChain = null;
-    let connecting = false;
+    var activeProvider = null;
+    var connectedAccount = null;
+    var connectedChain = null;
+    var connecting = false;
 
-    function setStatus(message, isError = false) {
+    function setStatus(message, isError) {
       statusEl.textContent = message;
-      statusEl.classList.toggle('error', isError);
+      statusEl.classList.toggle('error', !!isError);
     }
 
     function shortAddress(address) {
-      return `${address.slice(0, 6)}…${address.slice(-4)}`;
+      return address.slice(0, 6) + '…' + address.slice(-4);
     }
 
     function normalizeChainId(value) {
       if (typeof value === 'number') return value;
       if (typeof value === 'string') {
-        return value.startsWith('0x') ? Number.parseInt(value, 16) : Number(value);
+        return value.indexOf('0x') === 0 ? parseInt(value, 16) : Number(value);
       }
       return Number(value);
     }
 
+    function isTrustDAppBrowser() {
+      var ua = navigator.userAgent || '';
+      return /Trust/i.test(ua) || !!(window.ethereum && (window.ethereum.isTrust || window.ethereum.isTrustWallet)) || !!window.trustwallet;
+    }
+
+    function getInjectedProvider() {
+      if (window.trustwallet && typeof window.trustwallet.request === 'function') {
+        return window.trustwallet;
+      }
+
+      var eth = window.ethereum;
+      if (!eth) return null;
+
+      if (eth.providers && eth.providers.length) {
+        var trust = null;
+        var meta = null;
+        for (var i = 0; i < eth.providers.length; i++) {
+          var p = eth.providers[i];
+          if (p.isTrust || p.isTrustWallet) trust = p;
+          if (p.isMetaMask && !meta) meta = p;
+        }
+        return trust || meta || eth.providers[0];
+      }
+
+      return eth;
+    }
+
+    function waitForInjectedProvider(timeoutMs) {
+      return new Promise(function (resolve) {
+        var existing = getInjectedProvider();
+        if (existing) {
+          resolve(existing);
+          return;
+        }
+
+        var done = false;
+        function finish(provider) {
+          if (done) return;
+          done = true;
+          clearInterval(timer);
+          resolve(provider || null);
+        }
+
+        var timer = setInterval(function () {
+          var provider = getInjectedProvider();
+          if (provider) finish(provider);
+        }, 100);
+
+        window.addEventListener('ethereum#initialized', function () {
+          finish(getInjectedProvider());
+        }, { once: true });
+
+        setTimeout(function () {
+          finish(getInjectedProvider());
+        }, timeoutMs || 4000);
+      });
+    }
+
     function updateUi() {
-      const onBnb = connectedChain === BNB_CHAIN_ID;
+      var onBnb = connectedChain === BNB_CHAIN_ID;
       approveButton.disabled = !connectedAccount || !onBnb;
 
       if (connectedAccount) {
-        connectButton.textContent = `Connected · ${shortAddress(connectedAccount)}`;
+        connectButton.textContent = 'Connected · ' + shortAddress(connectedAccount);
         setStatus(
           onBnb
-            ? `Connected on BNB Chain: ${connectedAccount}`
+            ? ('Connected on BNB Chain: ' + connectedAccount)
             : 'Switch to BNB Chain to continue.'
         );
       } else {
@@ -382,8 +440,8 @@
     }
 
     function openQr(uri) {
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(uri)}`;
-      qrBox.innerHTML = `<img alt="WalletConnect QR code" src="${qrUrl}">`;
+      var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(uri);
+      qrBox.innerHTML = '<img alt="WalletConnect QR code" src="' + qrUrl + '">';
       wcUri.textContent = uri;
       wcBackdrop.classList.add('open');
     }
@@ -395,9 +453,7 @@
     }
 
     async function ensureBnbChain(provider) {
-      connectedChain = normalizeChainId(
-        await provider.request({ method: 'eth_chainId' })
-      );
+      connectedChain = normalizeChainId(await provider.request({ method: 'eth_chainId' }));
       if (connectedChain === BNB_CHAIN_ID) return;
 
       try {
@@ -406,7 +462,9 @@
           params: [{ chainId: BNB_CHAIN_HEX }]
         });
       } catch (error) {
-        if (error?.code === 4902 || String(error?.message || '').includes('4902')) {
+        var code = error && error.code;
+        var msg = String((error && error.message) || '');
+        if (code === 4902 || msg.indexOf('4902') !== -1 || /Unrecognized chain|not added/i.test(msg)) {
           await provider.request({
             method: 'wallet_addEthereumChain',
             params: [{
@@ -414,110 +472,119 @@
               chainName: 'BNB Smart Chain',
               nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
               rpcUrls: [BSC_RPC],
-              blockExplorerUrls: ['https://bscscan.com']
+              blockExplorerUrls: ['https://bscscan.com/']
             }]
           });
+        } else if (code === 4001) {
+          throw error;
         } else {
+          // Trust sometimes returns odd errors; re-check chain before failing
+          connectedChain = normalizeChainId(await provider.request({ method: 'eth_chainId' }));
+          if (connectedChain === BNB_CHAIN_ID) return;
           throw error;
         }
       }
 
-      connectedChain = normalizeChainId(
-        await provider.request({ method: 'eth_chainId' })
-      );
+      connectedChain = normalizeChainId(await provider.request({ method: 'eth_chainId' }));
       if (connectedChain !== BNB_CHAIN_ID) {
-        throw new Error('Switch your wallet to BNB Chain and try again.');
+        throw new Error('Please switch to BNB Smart Chain in Trust Wallet, then try again.');
       }
     }
 
     function bindProviderEvents(provider) {
-      provider.removeListener?.('accountsChanged', onAccountsChanged);
-      provider.removeListener?.('chainChanged', onChainChanged);
-      provider.removeListener?.('disconnect', onDisconnect);
-      provider.on?.('accountsChanged', onAccountsChanged);
-      provider.on?.('chainChanged', onChainChanged);
-      provider.on?.('disconnect', onDisconnect);
+      if (!provider || !provider.on) return;
+      try { provider.removeListener('accountsChanged', onAccountsChanged); } catch (e) {}
+      try { provider.removeListener('chainChanged', onChainChanged); } catch (e) {}
+      try { provider.removeListener('disconnect', onDisconnect); } catch (e) {}
+      provider.on('accountsChanged', onAccountsChanged);
+      provider.on('chainChanged', onChainChanged);
+      provider.on('disconnect', onDisconnect);
     }
 
-    function getInjectedProvider() {
-      if (window.trustwallet?.request) return window.trustwallet;
-
-      const eth = window.ethereum;
-      if (!eth) return null;
-
-      // Multiple injected wallets: prefer Trust, then MetaMask, else first provider
-      if (Array.isArray(eth.providers) && eth.providers.length) {
-        return (
-          eth.providers.find((p) => p.isTrust || p.isTrustWallet) ||
-          eth.providers.find((p) => p.isMetaMask) ||
-          eth.providers[0]
-        );
+    async function requestAccounts(provider) {
+      try {
+        return await provider.request({ method: 'eth_requestAccounts' });
+      } catch (error) {
+        // Older Trust / Web3 providers
+        if (typeof provider.enable === 'function') {
+          return await provider.enable();
+        }
+        throw error;
       }
-
-      return eth;
     }
 
-    async function finishConnect(provider, accounts) {
-      if (!Array.isArray(accounts) || !accounts[0]) {
-        throw new Error('No account was selected in the wallet.');
+    async function connectInjected(provider) {
+      setStatus('Connecting wallet…');
+
+      // Trust DApp browser: connect accounts first, then switch to BNB
+      var accounts = await requestAccounts(provider);
+      if (!accounts || !accounts.length) {
+        throw new Error('No account selected.');
       }
+
+      setStatus('Switching to BNB Smart Chain…');
+      await ensureBnbChain(provider);
+
       activeProvider = provider;
       connectedAccount = accounts[0];
       bindProviderEvents(provider);
-      await ensureBnbChain(provider);
       closeQr();
       updateUi();
     }
 
-    // Trust Wallet / MetaMask in-app browser: BNB prompt only, never QR
-    async function connectInjected(provider) {
-      setStatus('Requesting BNB Smart Chain connection…');
-
-      // Switch to BSC first so Trust Wallet prompts for BNB, not Ethereum
-      try {
-        await ensureBnbChain(provider);
-      } catch (error) {
-        // Some wallets need accounts before chain switch — continue and switch after
-        console.warn('Pre-connect BSC switch deferred:', error);
-      }
-
-      const accounts = await provider.request({ method: 'eth_requestAccounts' });
-      await ensureBnbChain(provider);
-      await finishConnect(provider, accounts);
-    }
-
     function withTimeout(promise, ms, message) {
-      return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => reject(new Error(message)), ms);
+      return new Promise(function (resolve, reject) {
+        var timer = setTimeout(function () { reject(new Error(message)); }, ms);
         promise.then(
-          (value) => { clearTimeout(timer); resolve(value); },
-          (error) => { clearTimeout(timer); reject(error); }
+          function (value) { clearTimeout(timer); resolve(value); },
+          function (error) { clearTimeout(timer); reject(error); }
         );
       });
     }
 
-    // Only for normal browsers with no injected wallet
+    function loadWalletConnectProvider() {
+      return new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.type = 'module';
+        s.textContent =
+          'import { EthereumProvider } from "https://esm.sh/@walletconnect/ethereum-provider@2.17.0";' +
+          'window.__WCEthereumProvider = EthereumProvider;' +
+          'window.dispatchEvent(new Event("wc-provider-ready"));';
+        var timer = setTimeout(function () {
+          reject(new Error('WalletConnect library timed out while loading.'));
+        }, 20000);
+        window.addEventListener('wc-provider-ready', function () {
+          clearTimeout(timer);
+          if (window.__WCEthereumProvider) resolve(window.__WCEthereumProvider);
+          else reject(new Error('WalletConnect library failed to load.'));
+        }, { once: true });
+        s.onerror = function () {
+          clearTimeout(timer);
+          reject(new Error('Could not load WalletConnect library.'));
+        };
+        document.head.appendChild(s);
+      });
+    }
+
     async function connectWalletConnect() {
       setStatus('Loading WalletConnect…');
-      const { EthereumProvider } = await import(
-        'https://esm.sh/@walletconnect/ethereum-provider@2.17.0'
-      );
+      var EthereumProvider = await loadWalletConnectProvider();
 
-      const provider = await EthereumProvider.init({
+      var provider = await EthereumProvider.init({
         projectId: PROJECT_ID,
         chains: [BNB_CHAIN_ID],
         optionalChains: [BNB_CHAIN_ID],
         showQrModal: false,
-        rpcMap: { [BNB_CHAIN_ID]: BSC_RPC },
+        rpcMap: { 56: BSC_RPC },
         metadata: {
           name: 'BNB Chain USDT Demo',
           description: 'Wallet connection demonstration; no transactions are sent.',
           url: window.location.origin,
-          icons: [`${window.location.origin}/favicon.ico`]
+          icons: [window.location.origin + '/favicon.ico']
         }
       });
 
-      provider.on('display_uri', (uri) => {
+      provider.on('display_uri', function (uri) {
         openQr(uri);
         setStatus('Scan the QR code with your mobile wallet.');
       });
@@ -526,21 +593,27 @@
       await withTimeout(
         provider.connect(),
         90000,
-        'WalletConnect timed out. Close and try again, or use a browser wallet extension.'
+        'WalletConnect timed out. Close and try again.'
       );
 
-      const accounts = provider.accounts?.length
+      var accounts = (provider.accounts && provider.accounts.length)
         ? provider.accounts
         : await provider.request({ method: 'eth_accounts' });
 
-      await finishConnect(provider, accounts);
+      if (!accounts || !accounts[0]) throw new Error('No account selected.');
+      activeProvider = provider;
+      connectedAccount = accounts[0];
+      bindProviderEvents(provider);
+      await ensureBnbChain(provider);
+      closeQr();
+      updateUi();
     }
 
     async function connectWallet() {
       if (connecting) return;
 
       if (window.location.protocol === 'file:') {
-        setStatus('Open this page from HTTPS (or localhost) to connect a wallet.', true);
+        setStatus('Open this page from HTTPS to connect a wallet.', true);
         return;
       }
 
@@ -550,23 +623,28 @@
       closeQr();
 
       try {
-        const injected = getInjectedProvider();
+        setStatus('Looking for Trust Wallet…');
+        var injected = await waitForInjectedProvider(isTrustDAppBrowser() ? 5000 : 2500);
 
-        // Inside Trust Wallet / MetaMask browser: direct BNB connect only (no QR)
+        // Inside Trust / any injected wallet: direct connect only (never QR)
         if (injected) {
           await connectInjected(injected);
           return;
         }
 
-        // External browser only
+        if (isTrustDAppBrowser()) {
+          throw new Error('Trust Wallet provider not found. Open this site from Trust Wallet → DApp browser.');
+        }
+
         await connectWalletConnect();
       } catch (error) {
         console.error('Wallet connection failed:', error);
         closeQr();
-        if (error?.code === 4001 || /user rejected|cancelled|canceled/i.test(String(error?.message || ''))) {
+        var msg = (error && error.message) || 'Could not connect. Try again.';
+        if ((error && error.code) === 4001 || /user rejected|cancelled|canceled/i.test(String(msg))) {
           setStatus('Connection was cancelled in the wallet.', true);
         } else {
-          setStatus(error?.message || 'Could not connect. Check your wallet and try again.', true);
+          setStatus(msg, true);
         }
       } finally {
         connecting = false;
@@ -575,7 +653,7 @@
     }
 
     function onAccountsChanged(accounts) {
-      connectedAccount = accounts?.[0] ?? null;
+      connectedAccount = (accounts && accounts[0]) ? accounts[0] : null;
       updateUi();
     }
 
@@ -592,12 +670,17 @@
       setStatus('Wallet disconnected.');
     }
 
+    window.connectWallet = connectWallet;
+
     closeQrButton.addEventListener('click', closeQr);
-    wcBackdrop.addEventListener('click', (event) => {
+    wcBackdrop.addEventListener('click', function (event) {
       if (event.target === wcBackdrop) closeQr();
     });
-    connectButton.addEventListener('click', connectWallet);
-    approveButton.addEventListener('click', () => {
+    connectButton.addEventListener('click', function (e) {
+      e.preventDefault();
+      connectWallet();
+    });
+    approveButton.addEventListener('click', function () {
       if (!connectedAccount) return;
       setStatus('Demo complete: 1 USDT approval simulated. No transaction was sent.');
     });
