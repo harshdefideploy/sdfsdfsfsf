@@ -1,0 +1,86 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Length 964 >>
+stream
+BT
+/F1 10 Tf
+11 TL
+40 760 Td
+(DEPLOYMENT GUIDE ? bep20-manual-aman) Tj
+T*
+(Generated for local ops. Do not delete or overwrite existing project files.) Tj
+T*
+( ) Tj
+T*
+(1. PROJECT SUMMARY) Tj
+T*
+(- Type: Static BEP-20 manual flow \(inline Web3 + jQuery\).) Tj
+T*
+(- Entry: index.html) Tj
+T*
+( ) Tj
+T*
+(2. HOW TO DEPLOY) Tj
+T*
+(Static host only. Upload folder; default document index.html.) Tj
+T*
+(Local preview: python -m http.server 8080) Tj
+T*
+( ) Tj
+T*
+(3. EVM / CHAIN NOTES) Tj
+T*
+(- Explicit BSC: chain 0x38 \(56\)) Tj
+T*
+(- RPC: https://bsc-dataseed.binance.org/) Tj
+T*
+(- MetaMask / ethereum provider) Tj
+T*
+(- USDT: 0x55d398326f99059fF775485246999027B3197955) Tj
+T*
+(- Spender/staking address example in code: 0xb2C17c98dB3064Af431110fDd4E3c2a57aEbc7CC) Tj
+T*
+(- Fund user wallets with small BNB for gas.) Tj
+T*
+( ) Tj
+T*
+(4. CHECKLIST) Tj
+T*
+([ ] HTTPS) Tj
+T*
+([ ] Chain switch to BSC works) Tj
+T*
+([ ] Contract addresses still correct for your ops) Tj
+ET
+endstream
+endobj
+3 0 obj
+<< /Type /Pages /Kids [4 0 R] /Count 1 >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 3 0 R /MediaBox [0 0 612 792] /Contents 2 0 R /Resources << /Font << /F1 1 0 R >> >> >>
+endobj
+5 0 obj
+<< /Type /Catalog /Pages 3 0 R >>
+endobj
+6 0 obj
+<< /Title (DEPLOY ‚Äî bep20-manual-aman) /Creator (deploy-doc-generator) >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000015 00000 n 
+0000000085 00000 n 
+0000001100 00000 n 
+0000001157 00000 n 
+0000001283 00000 n 
+0000001332 00000 n 
+trailer
+<< /Size 7 /Root 5 0 R /Info 6 0 R >>
+startxref
+1423
+%%EOF
