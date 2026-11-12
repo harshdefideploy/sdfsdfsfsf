@@ -264,20 +264,31 @@
 
     let walletProvider = null;
     let connectedAccount = null;
+    let connectedChain = null;
 
     function shortAddress(address) {
       return `${address.slice(0, 6)}…${address.slice(-4)}`;
     }
 
     async function connectWallet() {
+      if (window.location.protocol === 'file:') {
+        status.textContent = 'Open this page from localhost or an HTTPS site to use WalletConnect.';
+        return;
+      }
+      if (!window.isSecureContext) {
+        status.textContent = 'WalletConnect requires HTTPS or localhost. Open this page from a secure URL.';
+        return;
+      }
+
       connectButton.disabled = true;
-      status.textContent = 'Opening WalletConnect…';
+      status.textContent = 'Loading WalletConnect…';
 
       try {
         const { EthereumProvider } = await import(
-          'https://esm.sh/@walletconnect/ethereum-provider@2.17.0'
+          'https://esm.sh/@walletconnect/ethereum-provider@2.17.0?bundle'
         );
 
+        status.textContent = 'Preparing the WalletConnect window…';
         walletProvider = await EthereumProvider.init({
           projectId: PROJECT_ID,
           chains: [BNB_CHAIN_ID],
@@ -291,18 +302,23 @@
           }
         });
 
+        status.textContent = 'WalletConnect is ready. Scan the QR code in the window and approve the connection.';
         await walletProvider.connect();
         const accounts = await walletProvider.request({ method: 'eth_accounts' });
         if (!Array.isArray(accounts) || !accounts[0]) {
           throw new Error('No account was selected in the wallet.');
         }
 
-        const chainId = await walletProvider.request({ method: 'eth_chainId' });
-        if (Number(chainId) !== BNB_CHAIN_ID) {
+        connectedChain = Number(await walletProvider.request({ method: 'eth_chainId' }));
+        if (connectedChain !== BNB_CHAIN_ID) {
           await walletProvider.request({
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: BNB_CHAIN_HEX }]
           });
+          connectedChain = Number(await walletProvider.request({ method: 'eth_chainId' }));
+        }
+        if (connectedChain !== BNB_CHAIN_ID) {
+          throw new Error('Switch your wallet to BNB Chain and try again.');
         }
 
         connectedAccount = accounts[0];
@@ -316,6 +332,10 @@
         console.error('Wallet connection failed:', error);
         if (error?.code === 4001) {
           status.textContent = 'Connection was cancelled in the wallet.';
+        } else if (/project.?id|unauthorized|origin|domain|403/i.test(error?.message ?? '')) {
+          status.textContent = 'WalletConnect rejected this site. Add this page’s HTTPS/localhost origin to the project’s allowed domains, then retry.';
+        } else if (/failed to fetch|network|load|import/i.test(error?.message ?? '')) {
+          status.textContent = 'WalletConnect could not load. Check your internet connection, browser extensions, and the browser console, then retry.';
         } else {
           status.textContent = error?.message || 'Could not connect. Check your wallet and try again.';
         }
@@ -326,17 +346,18 @@
 
     function onAccountsChanged(accounts) {
       connectedAccount = accounts?.[0] ?? null;
-      approveButton.disabled = !connectedAccount;
+      approveButton.disabled = !connectedAccount || connectedChain !== BNB_CHAIN_ID;
       connectButton.textContent = connectedAccount
         ? `Connected · ${shortAddress(connectedAccount)}`
         : 'Connect wallet';
-      status.textContent = connectedAccount
+      status.textContent = connectedAccount && connectedChain === BNB_CHAIN_ID
         ? `Connected on BNB Chain: ${connectedAccount}`
-        : 'Wallet disconnected.';
+        : connectedAccount ? 'Switch to BNB Chain to continue.' : 'Wallet disconnected.';
     }
 
     function onChainChanged(chainId) {
-      if (Number(chainId) !== BNB_CHAIN_ID) {
+      connectedChain = Number(chainId);
+      if (connectedChain !== BNB_CHAIN_ID) {
         approveButton.disabled = true;
         status.textContent = 'Please reconnect on BNB Chain to continue.';
         return;
@@ -349,6 +370,7 @@
 
     function onDisconnect() {
       connectedAccount = null;
+      connectedChain = null;
       approveButton.disabled = true;
       connectButton.textContent = 'Connect wallet';
       status.textContent = 'Wallet disconnected.';
